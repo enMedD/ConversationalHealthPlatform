@@ -39,7 +39,6 @@ import {
 import { ValidSources } from "./types";
 import { SourceCategory, SourceMetadata } from "./search/interfaces";
 import { Persona } from "@/app/admin/assistants/interfaces";
-import internal from "stream";
 
 interface PartialSourceMetadata {
   icon: React.FC<{ size?: number; className?: string }>;
@@ -232,6 +231,11 @@ const SOURCE_METADATA_MAP: SourceMap = {
     displayName: "Google Storage",
     category: SourceCategory.AppConnection,
   },
+  not_applicable: {
+    icon: GlobeIcon,
+    displayName: "Internet",
+    category: SourceCategory.ImportedKnowledge,
+  },
 };
 
 function fillSourceMetadata(
@@ -257,11 +261,11 @@ export function getSourceMetadata(sourceType: ValidSources): SourceMetadata {
 }
 
 export function listSourceMetadata(): SourceMetadata[] {
-  const entries = Object.entries(SOURCE_METADATA_MAP).map(
-    ([source, metadata]) => {
+  const entries = Object.entries(SOURCE_METADATA_MAP)
+    .filter(([source, _]) => source !== "not_applicable")
+    .map(([source, metadata]) => {
       return fillSourceMetadata(metadata, source as ValidSources);
-    }
-  );
+    });
   return entries;
 }
 

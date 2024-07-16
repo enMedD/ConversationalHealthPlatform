@@ -63,7 +63,8 @@ export type ValidSources =
   | "s3"
   | "r2"
   | "google_cloud_storage"
-  | "oci_storage";
+  | "oci_storage"
+  | "not_applicable";
 
 export type ValidInputTypes = "load_state" | "poll" | "event";
 export type ValidStatuses =
@@ -132,6 +133,7 @@ export interface BookstackConfig {}
 
 export interface ConfluenceConfig {
   wiki_page_url: string;
+  index_origin?: boolean;
 }
 
 export interface JiraConfig {
@@ -514,6 +516,19 @@ export interface Tag {
   source: ValidSources;
 }
 
+// STANDARD ANSWERS
+export interface StandardAnswerCategory {
+  id: number;
+  name: string;
+}
+
+export interface StandardAnswer {
+  id: number;
+  keyword: string;
+  answer: string;
+  categories: StandardAnswerCategory[];
+}
+
 // SLACK BOT CONFIGS
 
 export type AnswerFilterOption =
@@ -524,8 +539,7 @@ export interface ChannelConfig {
   channel_names: string[];
   respond_tag_only?: boolean;
   respond_to_bots?: boolean;
-  respond_team_member_list?: string[];
-  respond_slack_group_list?: string[];
+  respond_member_group_list?: string[];
   answer_filters?: AnswerFilterOption[];
   follow_up_tags?: string[];
 }
@@ -537,6 +551,8 @@ export interface SlackBotConfig {
   persona: Persona | null;
   channel_config: ChannelConfig;
   response_type: SlackBotResponseType;
+  standard_answer_categories: StandardAnswerCategory[];
+  enable_auto_filters: boolean;
 }
 
 export interface SlackBotTokens {

@@ -23,6 +23,7 @@ from langchain_core.messages.tool import ToolCallChunk
 from langchain_core.messages.tool import ToolMessage
 
 from danswer.configs.app_configs import LOG_ALL_MODEL_INTERACTIONS
+from danswer.configs.app_configs import LOG_DANSWER_MODEL_INTERACTIONS
 from danswer.configs.model_configs import DISABLE_LITELLM_STREAMING
 from danswer.configs.model_configs import GEN_AI_API_ENDPOINT
 from danswer.configs.model_configs import GEN_AI_API_VERSION
@@ -41,6 +42,8 @@ logger = setup_logger()
 # parameters like frequency and presence, just ignore them
 litellm.drop_params = True
 litellm.telemetry = False
+
+litellm.set_verbose = LOG_ALL_MODEL_INTERACTIONS
 
 
 def _base_msg_to_role(msg: BaseMessage) -> str:
@@ -304,6 +307,8 @@ class DefaultMultiLLM(LLM):
             model_name=self._model_version,
             temperature=self._temperature,
             api_key=self._api_key,
+            api_base=self._api_base,
+            api_version=self._api_version,
         )
 
     def invoke(
@@ -312,7 +317,7 @@ class DefaultMultiLLM(LLM):
         tools: list[dict] | None = None,
         tool_choice: ToolChoiceOptions | None = None,
     ) -> BaseMessage:
-        if LOG_ALL_MODEL_INTERACTIONS:
+        if LOG_DANSWER_MODEL_INTERACTIONS:
             self.log_model_configs()
             self._log_prompt(prompt)
 
@@ -329,7 +334,7 @@ class DefaultMultiLLM(LLM):
         tools: list[dict] | None = None,
         tool_choice: ToolChoiceOptions | None = None,
     ) -> Iterator[BaseMessage]:
-        if LOG_ALL_MODEL_INTERACTIONS:
+        if LOG_DANSWER_MODEL_INTERACTIONS:
             self.log_model_configs()
             self._log_prompt(prompt)
 
@@ -357,7 +362,7 @@ class DefaultMultiLLM(LLM):
                 "The AI model failed partway through generation, please try again."
             )
 
-        if LOG_ALL_MODEL_INTERACTIONS and output:
+        if LOG_DANSWER_MODEL_INTERACTIONS and output:
             content = output.content or ""
             if isinstance(output, AIMessage):
                 if content:
