@@ -168,6 +168,7 @@ def stream_answer_objects(
         max_tokens=max_document_tokens,
         use_sections=query_req.chunks_above > 0 or query_req.chunks_below > 0,
     )
+
     search_tool = SearchTool(
         db_session=db_session,
         user=user,
@@ -177,6 +178,9 @@ def stream_answer_objects(
         llm=llm,
         fast_llm=fast_llm,
         pruning_config=document_pruning_config,
+        chunks_above=query_req.chunks_above,
+        chunks_below=query_req.chunks_below,
+        full_doc=query_req.full_doc,
         bypass_acl=bypass_acl,
     )
 
@@ -193,7 +197,7 @@ def stream_answer_objects(
         single_message_history=history_str,
         tools=[search_tool],
         force_use_tool=ForceUseTool(
-            tool_name=search_tool.name(),
+            tool_name=search_tool.name,
             args={"query": rephrased_query},
         ),
         # for now, don't use tool calling for this flow, as we haven't

@@ -53,7 +53,8 @@ export type ValidSources =
   | "s3"
   | "r2"
   | "google_cloud_storage"
-  | "oci_storage";
+  | "oci_storage"
+  | "not_applicable";
   
 export type ValidInputTypes = "load_state" | "poll" | "event";
 export type ValidStatuses =
@@ -122,6 +123,7 @@ export interface BookstackConfig {}
 
 export interface ConfluenceConfig {
   wiki_page_url: string;
+  index_origin?: boolean;
 }
 
 export interface JiraConfig {
