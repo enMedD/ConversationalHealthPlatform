@@ -434,6 +434,19 @@ export interface Tag {
   source: ValidSources;
 }
 
+// STANDARD ANSWERS
+export interface StandardAnswerCategory {
+  id: number;
+  name: string;
+}
+
+export interface StandardAnswer {
+  id: number;
+  keyword: string;
+  answer: string;
+  categories: StandardAnswerCategory[];
+}
+
 /* EE Only Types */
 export interface UserGroup {
   id: number;

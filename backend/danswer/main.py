@@ -269,7 +269,7 @@ def get_application() -> FastAPI:
     include_router_with_global_prefix_prepended(application, chat_router)
     include_router_with_global_prefix_prepended(application, query_router)
     include_router_with_global_prefix_prepended(application, document_router)
-    include_router_with_global_prefix_prepended(application, admin_query_router)
+    include_router_with_global_prefix_prepended(application, admin_query_router) 
     include_router_with_global_prefix_prepended(application, admin_router)
     include_router_with_global_prefix_prepended(application, user_router)
     include_router_with_global_prefix_prepended(application, connector_router)

@@ -588,21 +588,6 @@ export const AzureIcon = ({
   );
 };
 
-export const LinearIcon = ({
-  size = 16,
-  className = defaultTailwindCSS,
-}: IconProps) => {
-  return (
-    <div
-      // Linear Icon has a bit more surrounding whitespace than other icons, which is why we need to adjust it here
-      style={{ width: `${size + 4}px`, height: `${size + 4}px` }}
-      className={`w-[${size + 4}px] h-[${size + 4}px] -m-0.5 ` + className}
-    >
-      <Image src={linearIcon} alt="Logo" width="96" height="96" />
-    </div>
-  );
-};
-
 export const SlabIcon = ({
   size = 16,
   className = defaultTailwindCSS,
