@@ -32,24 +32,19 @@ export type ValidSources =
   | "gitlab"
   | "google_drive"
   | "gmail"
-  | "bookstack"
   | "confluence"
   | "jira"
   | "productboard"
   | "notion"
-  | "guru"
   | "hubspot"
   | "google_sites"
+  | "google_sheets"
   | "dropbox"
   | "salesforce"
   | "sharepoint"
   | "teams"
   | "zendesk"
-  | "discourse"
-  | "clickup"
-  | "wikipedia"
   | "file"
-  | "mediawiki"
   | "s3"
   | "r2"
   | "google_cloud_storage"
@@ -282,12 +277,6 @@ export interface GitlabCredentialJson {
   gitlab_access_token: string;
 }
 
-export interface BookstackCredentialJson {
-  bookstack_base_url: string;
-  bookstack_api_token_id: string;
-  bookstack_api_token_secret: string;
-}
-
 export interface ConfluenceCredentialJson {
   confluence_username: string;
   confluence_access_token: string;
@@ -328,18 +317,8 @@ export interface NotionCredentialJson {
   notion_integration_token: string;
 }
 
-export interface GuruCredentialJson {
-  guru_user: string;
-  guru_user_token: string;
-}
-
 export interface HubSpotCredentialJson {
   hubspot_access_token: string;
-}
-
-export interface ClickupCredentialJson {
-  clickup_api_token: string;
-  clickup_team_id: string;
 }
 
 export interface ZendeskCredentialJson {
@@ -391,11 +370,6 @@ export interface TeamsCredentialJson {
   teams_client_id: string;
   teams_client_secret: string;
   teams_directory_id: string;
-}
-
-export interface DiscourseCredentialJson {
-  discourse_api_key: string;
-  discourse_api_username: string;
 }
 
 export interface MediaWikiCredentialJson {}

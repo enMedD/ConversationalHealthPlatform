@@ -1,8 +1,5 @@
 import {
-  BookstackIcon,
-  ClickupIcon,
   ConfluenceIcon,
-  DiscourseIcon,
   DropboxIcon,
   GithubIcon,
   GitlabIcon,
@@ -10,7 +7,6 @@ import {
   GmailIcon,
   GoogleDriveIcon,
   GoogleSitesIcon,
-  GuruIcon,
   HubSpotIcon,
   JiraIcon,
   NotionIcon,
@@ -18,13 +14,13 @@ import {
   SharepointIcon,
   TeamsIcon,
   ZendeskIcon,
-  MediaWikiIcon,
-  WikipediaIcon,
   FileIcon,
   S3Icon,
   R2Icon,
   GoogleStorageIcon,
   OCIStorageIcon,
+  SalesforceIcon,
+  GoogleSheetsIcon,
 } from "@/components/icons/icons";
 import { ValidSources } from "./types";
 import { SourceCategory, SourceMetadata } from "./search/interfaces";
@@ -91,25 +87,15 @@ const SOURCE_METADATA_MAP: SourceMap = {
     displayName: "Productboard",
     category: SourceCategory.AppConnection,
   },
-  guru: {
-    icon: GuruIcon,
-    displayName: "Guru",
-    category: SourceCategory.AppConnection,
-  },
   hubspot: {
     icon: HubSpotIcon,
     displayName: "HubSpot",
     category: SourceCategory.AppConnection,
   },
-  bookstack: {
-    icon: BookstackIcon,
-    displayName: "BookStack",
-    category: SourceCategory.AppConnection,
-  },
   google_sites: {
     icon: GoogleSitesIcon,
     displayName: "Google Sites",
-    category: SourceCategory.ImportedKnowledge,
+    category: SourceCategory.Disabled,
   },
   dropbox: {
     icon: DropboxIcon,
@@ -126,50 +112,30 @@ const SOURCE_METADATA_MAP: SourceMap = {
     displayName: "Teams",
     category: SourceCategory.AppConnection,
   },
-  discourse: {
-    icon: DiscourseIcon,
-    displayName: "Discourse",
-    category: SourceCategory.AppConnection,
-  },
-  wikipedia: {
-    icon: WikipediaIcon,
-    displayName: "Wikipedia",
-    category: SourceCategory.AppConnection,
-  },
-  mediawiki: {
-    icon: MediaWikiIcon,
-    displayName: "MediaWiki",
-    category: SourceCategory.AppConnection,
-  },
-  clickup: {
-    icon: ClickupIcon,
-    displayName: "Clickup",
-    category: SourceCategory.AppConnection,
-  },
   salesforce: {
-    icon: GlobeIcon,
+    icon: SalesforceIcon,
     displayName: "Salesforce",
     category: SourceCategory.AppConnection,
   },
   file: {
     icon: FileIcon,
     displayName: "File",
-    category: SourceCategory.AppConnection,
+    category: SourceCategory.ImportedKnowledge,
   },
   s3: {
     icon: S3Icon,
-    displayName: "File",
-    category: SourceCategory.AppConnection,
+    displayName: "AWS S3",
+    category: SourceCategory.ImportedKnowledge,
   },
   r2: {
     icon: R2Icon,
-    displayName: "File",
-    category: SourceCategory.AppConnection,
+    displayName: "Cloudflare R2",
+    category: SourceCategory.ImportedKnowledge,
   },
   google_cloud_storage: {
     icon: GoogleStorageIcon,
-    displayName: "File",
-    category: SourceCategory.AppConnection,
+    displayName: "Google Storage",
+    category: SourceCategory.ImportedKnowledge,
   },
   not_applicable: {
     icon: GlobeIcon,
@@ -178,9 +144,14 @@ const SOURCE_METADATA_MAP: SourceMap = {
   },
   oci_storage: {
     icon: OCIStorageIcon,
-    displayName: "File",
-    category: SourceCategory.AppConnection,
-  }
+    displayName: "Oracle Storage",
+    category: SourceCategory.ImportedKnowledge,
+  },
+  google_sheets: {
+    icon: GoogleSheetsIcon,
+    displayName: "Google Sheets",
+    category: SourceCategory.ComingSoon,
+  },
 };
 
 function fillSourceMetadata(

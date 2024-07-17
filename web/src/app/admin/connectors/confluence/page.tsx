@@ -210,11 +210,11 @@ const Main = () => {
           <p className="text-sm mb-4">
             Specify any link to a Confluence page below and click
             &quot;Index&quot; to Index. Based on the provided link, we will
-            index either the entire page and its subpages OR the entire space.
-            For example, entering{" "}
-            <i>
-              https://danswer.atlassian.net/wiki/spaces/Engineering/overview
-            </i>{" "}
+            index the ENTIRE SPACE, not just the specified page. For example,
+            entering{" "}
+            <a href="https://danswer.atlassian.net/wiki/spaces/Engineering/overview">
+              <i>Atlassian engineering overview</i>{" "}
+            </a>
             and clicking the Index button will index the whole{" "}
             <i>Engineering</i> Confluence space, but entering
             https://danswer.atlassian.net/wiki/spaces/Engineering/pages/164331/example+page
