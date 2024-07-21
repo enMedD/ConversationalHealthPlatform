@@ -367,14 +367,22 @@ function Main() {
           <div className="mt-8 text-sm  mr-auto  mb-12 divide-x-2  flex   ">
             <button
               onClick={() => setOpenToggle(true)}
-              className={` mx-2 p-2 font-bold  ${openToggle ? "rounded bg-neutral-900 text-neutral-100 underline" : "hover:underline"}`}
+              className={` mx-2 p-2 font-bold  ${
+                openToggle
+                  ? "rounded bg-neutral-900 text-neutral-100 underline"
+                  : "hover:underline"
+              }`}
             >
               Self-hosted
             </button>
             <div className="px-2 ">
               <button
                 onClick={() => setOpenToggle(false)}
-                className={`mx-2 p-2 font-bold  ${!openToggle ? "rounded bg-neutral-900   text-neutral-100 underline" : " hover:underline"}`}
+                className={`mx-2 p-2 font-bold  ${
+                  !openToggle
+                    ? "rounded bg-neutral-900   text-neutral-100 underline"
+                    : " hover:underline"
+                }`}
               >
                 Cloud-based
               </button>
@@ -423,8 +431,8 @@ function Main() {
                   Connectors are the way that enMedD CHP gets data from your
                   organization&apos;s various data sources. Once setup,
                   we&apos;ll automatically sync data from your apps and docs
-                  into enMedD CHP, so you can search all through all of them in one
-                  place.
+                  into enMedD CHP, so you can search all through all of them in
+                  one place.
                 </div>
                 <div className="flex">
                   <Link
