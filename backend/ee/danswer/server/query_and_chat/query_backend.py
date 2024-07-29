@@ -6,9 +6,6 @@ from sqlalchemy.orm import Session
 
 from danswer.auth.users import current_user
 from danswer.configs.danswerbot_configs import DANSWER_BOT_TARGET_CHUNK_PERCENTAGE
-from danswer.danswerbot.slack.handlers.handle_standard_answers import (
-    oneoff_standard_answers,
-)
 from danswer.db.engine import get_session
 from danswer.db.models import User
 from danswer.db.persona import get_persona_by_id
@@ -161,21 +158,3 @@ def get_answer_with_quote(
     )
 
     return answer_details
-
-
-@basic_router.get("/standard-answer")
-def get_standard_answer(
-    request: StandardAnswerRequest,
-    db_session: Session = Depends(get_session),
-    _: User | None = Depends(current_user),
-) -> StandardAnswerResponse:
-    try:
-        standard_answers = oneoff_standard_answers(
-            message=request.message,
-            slack_bot_categories=request.slack_bot_categories,
-            db_session=db_session,
-        )
-        return StandardAnswerResponse(standard_answers=standard_answers)
-    except Exception as e:
-        logger.error(f"Error in get_standard_answer: {str(e)}", exc_info=True)
-        raise HTTPException(status_code=500, detail="An internal server error occurred")
