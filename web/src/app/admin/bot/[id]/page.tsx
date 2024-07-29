@@ -33,7 +33,7 @@ async function Page({ params }: { params: { id: string } }) {
     Response,
     Response,
     FetchAssistantsResponse,
-    Response,
+    Response
   ];
 
   if (!slackBotsResponse.ok) {

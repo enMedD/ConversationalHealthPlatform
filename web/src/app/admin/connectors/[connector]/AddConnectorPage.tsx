@@ -70,17 +70,14 @@ export default function AddConnector({
 
   const configuration: ConnectionConfiguration = connectorConfigs[connector];
 
-  const initialValues = configuration.values.reduce(
-    (acc, field) => {
-      if (field.type === "list") {
-        acc[field.name] = field.default || [];
-      } else if (field.default !== undefined) {
-        acc[field.name] = field.default;
-      }
-      return acc;
-    },
-    {} as { [record: string]: any }
-  );
+  const initialValues = configuration.values.reduce((acc, field) => {
+    if (field.type === "list") {
+      acc[field.name] = field.default || [];
+    } else if (field.default !== undefined) {
+      acc[field.name] = field.default;
+    }
+    return acc;
+  }, {} as { [record: string]: any });
 
   const [values, setValues] = useState<{ [record: string]: any } | null>(
     Object.keys(initialValues).length > 0 ? initialValues : null

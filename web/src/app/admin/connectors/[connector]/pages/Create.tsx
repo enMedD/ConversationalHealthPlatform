@@ -38,42 +38,36 @@ const DynamicConnectionForm: React.FC<DynamicConnectionFormProps> = ({
   const initialValues = {
     name: initialName || "",
     ...(defaultValues ||
-      config.values.reduce(
-        (acc, field, ind) => {
-          acc[field.name] = defaultValues
-            ? defaultValues[field.name]
-            : config.values[ind].hidden
-              ? config.values[ind].default
-              : field.type === "list"
-                ? [""]
-                : field.type === "checkbox"
-                  ? false
-                  : "";
-          return acc;
-        },
-        {} as Record<string, any>
-      )),
+      config.values.reduce((acc, field, ind) => {
+        acc[field.name] = defaultValues
+          ? defaultValues[field.name]
+          : config.values[ind].hidden
+          ? config.values[ind].default
+          : field.type === "list"
+          ? [""]
+          : field.type === "checkbox"
+          ? false
+          : "";
+        return acc;
+      }, {} as Record<string, any>)),
   };
   const { setAllowAdvanced } = useFormContext();
   const validationSchema = Yup.object().shape({
     name: Yup.string().required("Connector Name is required"),
-    ...config.values.reduce(
-      (acc, field) => {
-        let schema: any =
-          field.type === "list"
-            ? Yup.array().of(Yup.string())
-            : field.type === "checkbox"
-              ? Yup.boolean()
-              : Yup.string();
+    ...config.values.reduce((acc, field) => {
+      let schema: any =
+        field.type === "list"
+          ? Yup.array().of(Yup.string())
+          : field.type === "checkbox"
+          ? Yup.boolean()
+          : Yup.string();
 
-        if (!field.optional) {
-          schema = schema.required(`${field.label} is required`);
-        }
-        acc[field.name] = schema;
-        return acc;
-      },
-      {} as Record<string, any>
-    ),
+      if (!field.optional) {
+        schema = schema.required(`${field.label} is required`);
+      }
+      acc[field.name] = schema;
+      return acc;
+    }, {} as Record<string, any>),
   });
 
   const updateValue =

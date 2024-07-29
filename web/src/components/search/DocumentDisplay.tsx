@@ -296,7 +296,9 @@ export const AgenticDocumentDisplay = ({
       }}
     >
       <div
-        className={`collapsible ${!hide && "collapsible-closed overflow-y-auto border-transparent"}`}
+        className={`collapsible ${
+          !hide && "collapsible-closed overflow-y-auto border-transparent"
+        }`}
       >
         <div className="flex relative">
           <a

@@ -120,8 +120,8 @@ export default function CloudEmbeddingPage({
                       !provider.configured
                         ? "opacity-80 hover:opacity-100"
                         : enabled
-                          ? "bg-background-stronger"
-                          : "hover:bg-background-strong"
+                        ? "bg-background-stronger"
+                        : "hover:bg-background-strong"
                     }`}
                     onClick={() => {
                       if (enabled) {

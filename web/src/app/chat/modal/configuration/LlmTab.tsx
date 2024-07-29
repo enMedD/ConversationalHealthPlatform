@@ -89,7 +89,11 @@ export const LlmTab = forwardRef<HTMLDivElement, LlmTabProps>(
             return (
               <button
                 key={index}
-                className={`w-full py-1.5 px-2 text-sm ${currentLlm == name ? "bg-background-200" : "bg-background-100/50 hover:bg-background-100"} text-left rounded`}
+                className={`w-full py-1.5 px-2 text-sm ${
+                  currentLlm == name
+                    ? "bg-background-200"
+                    : "bg-background-100/50 hover:bg-background-100"
+                } text-left rounded`}
                 onClick={() => {
                   setLlmOverride(destructureValue(value));
                   if (chatSessionId) {

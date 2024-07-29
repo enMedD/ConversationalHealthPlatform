@@ -220,8 +220,8 @@ export const SearchResultsDisplay = ({
                         ? "Show All"
                         : "Focus"
                       : agenticResults
-                        ? "Focus"
-                        : "Show All"}
+                      ? "Focus"
+                      : "Show All"}
                     <span className="ml-1">
                       {!sweep ? (
                         <BroomIcon className="h-4 w-4" />

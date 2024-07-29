@@ -132,10 +132,10 @@ export function ChatPage({
           (assistant) => assistant.id === existingChatSessionAssistantId
         )
       : defaultSelectedAssistantId !== undefined
-        ? availableAssistants.find(
-            (assistant) => assistant.id === defaultSelectedAssistantId
-          )
-        : undefined
+      ? availableAssistants.find(
+          (assistant) => assistant.id === defaultSelectedAssistantId
+        )
+      : undefined
   );
   const setSelectedAssistantFromId = (assistantId: number) => {
     // NOTE: also intentionally look through available assistants here, so that

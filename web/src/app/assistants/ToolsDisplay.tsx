@@ -49,7 +49,9 @@ export function AssistantTools({
   return (
     <div className="relative text-xs flex text-subtle">
       <span
-        className={`${assistant.tools.length > 0 && "py-1"}  ${!list ? "font-semibold" : "text-subtle text-sm"}`}
+        className={`${assistant.tools.length > 0 && "py-1"}  ${
+          !list ? "font-semibold" : "text-subtle text-sm"
+        }`}
       >
         Tools:
       </span>{" "}
@@ -71,7 +73,13 @@ export function AssistantTools({
                     w-fit 
                     flex
                     items-center
-                    ${hovered ? "bg-background-300" : list ? "bg-background-125" : "bg-background-100"}
+                    ${
+                      hovered
+                        ? "bg-background-300"
+                        : list
+                        ? "bg-background-125"
+                        : "bg-background-100"
+                    }
                     cursor-pointer`}
                 >
                   <div className="flex gap-x-1">
@@ -92,7 +100,13 @@ export function AssistantTools({
                     border-border 
                     w-fit 
                     flex
-                    ${hovered ? "bg-background-300" : list ? "bg-background-125" : "bg-background-100"}
+                    ${
+                      hovered
+                        ? "bg-background-300"
+                        : list
+                        ? "bg-background-125"
+                        : "bg-background-100"
+                    }
                     cursor-pointer`}
                 >
                   <div className="flex items-center gap-x-1">
@@ -117,7 +131,13 @@ export function AssistantTools({
                   w-fit 
                   flex
                   items-center
-                  ${hovered ? "bg-background-300" : list ? "bg-background-125" : "bg-background-100"}
+                  ${
+                    hovered
+                      ? "bg-background-300"
+                      : list
+                      ? "bg-background-125"
+                      : "bg-background-100"
+                  }
                   cursor-pointer`}
                 >
                   <div className="flex gap-x-1">{tool.name}</div>

@@ -129,8 +129,8 @@ export function ReIndexButton({
           isDeleting
             ? "Cannot index while connector is deleting"
             : isDisabled
-              ? "Connector must be re-enabled before indexing"
-              : undefined
+            ? "Connector must be re-enabled before indexing"
+            : undefined
         }
       >
         Index

@@ -196,23 +196,22 @@ const Main = () => {
       {popup}
 
       <Text className="mb-2">
-        Setup a Slack bot that connects to enMedD CHP. Once setup, you will be able
-        to ask questions to enMedD CHP directly from Slack. Additionally, you can:
+        Setup a Slack bot that connects to enMedD CHP. Once setup, you will be
+        able to ask questions to enMedD CHP directly from Slack. Additionally,
+        you can:
       </Text>
 
       <Text className="mb-2">
         <ul className="list-disc mt-2 ml-4">
           <li>
-            Setup CHP Bot to automatically answer questions in certain
-            channels.
+            Setup CHP Bot to automatically answer questions in certain channels.
           </li>
           <li>
-            Choose which document sets CHP Bot should answer from, depending
-            on the channel the question is being asked.
+            Choose which document sets CHP Bot should answer from, depending on
+            the channel the question is being asked.
           </li>
           <li>
-            Directly message CHP Bot to search just as you would in the web
-            UI.
+            Directly message CHP Bot to search just as you would in the web UI.
           </li>
         </ul>
       </Text>

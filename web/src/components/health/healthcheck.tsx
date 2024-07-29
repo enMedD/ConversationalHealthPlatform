@@ -14,12 +14,9 @@ export const HealthCheckBanner = ({
   const [expired, setExpired] = useState(false);
 
   if (secondsUntilExpiration !== null && secondsUntilExpiration !== undefined) {
-    setTimeout(
-      () => {
-        setExpired(true);
-      },
-      secondsUntilExpiration * 1000 - 200
-    );
+    setTimeout(() => {
+      setExpired(true);
+    }, secondsUntilExpiration * 1000 - 200);
   }
 
   if (!error && !expired) {
