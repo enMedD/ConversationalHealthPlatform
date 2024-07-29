@@ -16,7 +16,9 @@ from danswer.configs.app_configs import CLEANUP_INDEXING_JOBS_TIMEOUT
 from danswer.configs.app_configs import DASK_JOB_CLIENT_ENABLED
 from danswer.configs.app_configs import DISABLE_INDEX_UPDATE_ON_SWAP
 from danswer.configs.app_configs import NUM_INDEXING_WORKERS
+from danswer.configs.app_configs import NUM_SECONDARY_INDEXING_WORKERS
 from danswer.db.connector import fetch_connectors
+from danswer.db.connector_credential_pair import fetch_connector_credential_pairs
 from danswer.db.embedding_model import get_current_db_embedding_model
 from danswer.db.embedding_model import get_secondary_db_embedding_model
 from danswer.db.engine import get_db_current_time
@@ -24,7 +26,7 @@ from danswer.db.engine import get_sqlalchemy_engine
 from danswer.db.index_attempt import create_index_attempt
 from danswer.db.index_attempt import get_index_attempt
 from danswer.db.index_attempt import get_inprogress_index_attempts
-from danswer.db.index_attempt import get_last_attempt
+from danswer.db.index_attempt import get_last_attempt_for_cc_pair
 from danswer.db.index_attempt import get_not_started_index_attempts
 from danswer.db.index_attempt import mark_attempt_failed
 from danswer.db.models import Connector
@@ -33,7 +35,7 @@ from danswer.db.models import IndexAttempt
 from danswer.db.models import IndexingStatus
 from danswer.db.models import IndexModelStatus
 from danswer.db.swap_index import check_index_swap
-from danswer.search.search_nlp_models import warm_up_encoders
+from danswer.natural_language_processing.search_nlp_models import warm_up_encoders
 from danswer.utils.logger import setup_logger
 from danswer.utils.variable_functionality import global_version
 from danswer.utils.variable_functionality import set_is_ee_based_on_env_variable
@@ -111,8 +113,8 @@ def _mark_run_failed(
     """Marks the `index_attempt` row as failed + updates the `
     connector_credential_pair` to reflect that the run failed"""
     logger.warning(
-        f"Marking in-progress attempt 'connector: {index_attempt.connector_id}, "
-        f"credential: {index_attempt.credential_id}' as failed due to {failure_reason}"
+        f"Marking in-progress attempt 'connector: {index_attempt.connector_credential_pair.connector_id}, "
+        f"credential: {index_attempt.connector_credential_pair.credential_id}' as failed due to {failure_reason}"
     )
     mark_attempt_failed(
         index_attempt=index_attempt,
@@ -131,7 +133,7 @@ def create_indexing_jobs(existing_jobs: dict[int, Future | SimpleJob]) -> None:
     3. There is not already an ongoing indexing attempt for this pair
     """
     with Session(get_sqlalchemy_engine()) as db_session:
-        ongoing: set[tuple[int | None, int | None, int]] = set()
+        ongoing: set[tuple[int | None, int]] = set()
         for attempt_id in existing_jobs:
             attempt = get_index_attempt(
                 db_session=db_session, index_attempt_id=attempt_id
@@ -144,8 +146,7 @@ def create_indexing_jobs(existing_jobs: dict[int, Future | SimpleJob]) -> None:
                 continue
             ongoing.add(
                 (
-                    attempt.connector_id,
-                    attempt.credential_id,
+                    attempt.connector_credential_pair_id,
                     attempt.embedding_model_id,
                 )
             )
@@ -155,31 +156,26 @@ def create_indexing_jobs(existing_jobs: dict[int, Future | SimpleJob]) -> None:
         if secondary_embedding_model is not None:
             embedding_models.append(secondary_embedding_model)
 
-        all_connectors = fetch_connectors(db_session)
-        for connector in all_connectors:
-            for association in connector.credentials:
-                for model in embedding_models:
-                    credential = association.credential
+        all_connector_credential_pairs = fetch_connector_credential_pairs(db_session)
+        for cc_pair in all_connector_credential_pairs:
+            for model in embedding_models:
+                # Check if there is an ongoing indexing attempt for this connector credential pair
+                if (cc_pair.id, model.id) in ongoing:
+                    continue
 
-                    # Check if there is an ongoing indexing attempt for this connector + credential pair
-                    if (connector.id, credential.id, model.id) in ongoing:
-                        continue
+                last_attempt = get_last_attempt_for_cc_pair(
+                    cc_pair.id, model.id, db_session
+                )
+                if not _should_create_new_indexing(
+                    connector=cc_pair.connector,
+                    last_index=last_attempt,
+                    model=model,
+                    secondary_index_building=len(embedding_models) > 1,
+                    db_session=db_session,
+                ):
+                    continue
 
-                    last_attempt = get_last_attempt(
-                        connector.id, credential.id, model.id, db_session
-                    )
-                    if not _should_create_new_indexing(
-                        connector=connector,
-                        last_index=last_attempt,
-                        model=model,
-                        secondary_index_building=len(embedding_models) > 1,
-                        db_session=db_session,
-                    ):
-                        continue
-
-                    create_index_attempt(
-                        connector.id, credential.id, model.id, db_session
-                    )
+                create_index_attempt(cc_pair.id, model.id, db_session)
 
 
 def cleanup_indexing_jobs(
@@ -271,6 +267,8 @@ def kickoff_indexing_jobs(
     # Don't include jobs waiting in the Dask queue that just haven't started running
     # Also (rarely) don't include for jobs that started but haven't updated the indexing tables yet
     with Session(engine) as db_session:
+        # get_not_started_index_attempts orders its returned results from oldest to newest
+        # we must process attempts in a FIFO manner to prevent connector starvation
         new_indexing_attempts = [
             (attempt, attempt.embedding_model)
             for attempt in get_not_started_index_attempts(db_session)
@@ -288,7 +286,7 @@ def kickoff_indexing_jobs(
             if embedding_model is not None
             else False
         )
-        if attempt.connector is None:
+        if attempt.connector_credential_pair.connector is None:
             logger.warning(
                 f"Skipping index attempt as Connector has been deleted: {attempt}"
             )
@@ -297,7 +295,7 @@ def kickoff_indexing_jobs(
                     attempt, db_session, failure_reason="Connector is null"
                 )
             continue
-        if attempt.credential is None:
+        if attempt.connector_credential_pair.credential is None:
             logger.warning(
                 f"Skipping index attempt as Credential has been deleted: {attempt}"
             )
@@ -326,16 +324,20 @@ def kickoff_indexing_jobs(
             secondary_str = "(secondary index) " if use_secondary_index else ""
             logger.info(
                 f"Kicked off {secondary_str}"
-                f"indexing attempt for connector: '{attempt.connector.name}', "
-                f"with config: '{attempt.connector.connector_specific_config}', and "
-                f"with credentials: '{attempt.credential_id}'"
+                f"indexing attempt for connector: '{attempt.connector_credential_pair.connector.name}', "
+                f"with config: '{attempt.connector_credential_pair.connector.connector_specific_config}', and "
+                f"with credentials: '{attempt.connector_credential_pair.credential_id}'"
             )
             existing_jobs_copy[attempt.id] = run
 
     return existing_jobs_copy
 
 
-def update_loop(delay: int = 10, num_workers: int = NUM_INDEXING_WORKERS) -> None:
+def update_loop(
+    delay: int = 10,
+    num_workers: int = NUM_INDEXING_WORKERS,
+    num_secondary_workers: int = NUM_SECONDARY_INDEXING_WORKERS,
+) -> None:
     engine = get_sqlalchemy_engine()
     with Session(engine) as db_session:
         check_index_swap(db_session=db_session)
@@ -366,7 +368,7 @@ def update_loop(delay: int = 10, num_workers: int = NUM_INDEXING_WORKERS) -> Non
             silence_logs=logging.ERROR,
         )
         cluster_secondary = LocalCluster(
-            n_workers=num_workers,
+            n_workers=num_secondary_workers,
             threads_per_worker=1,
             silence_logs=logging.ERROR,
         )
@@ -376,7 +378,7 @@ def update_loop(delay: int = 10, num_workers: int = NUM_INDEXING_WORKERS) -> Non
             client_primary.register_worker_plugin(ResourceLogger())
     else:
         client_primary = SimpleJobClient(n_workers=num_workers)
-        client_secondary = SimpleJobClient(n_workers=num_workers)
+        client_secondary = SimpleJobClient(n_workers=num_secondary_workers)
 
     existing_jobs: dict[int, Future | SimpleJob] = {}
 

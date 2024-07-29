@@ -32,6 +32,7 @@ class LLMProviderDescriptor(BaseModel):
     default_model_name: str
     fast_default_model_name: str | None
     is_default_provider: bool | None
+    display_model_names: list[str] | None
 
     @classmethod
     def from_model(
@@ -48,6 +49,7 @@ class LLMProviderDescriptor(BaseModel):
                 or fetch_models_for_provider(llm_provider_model.provider)
                 or [llm_provider_model.default_model_name]
             ),
+            display_model_names=llm_provider_model.display_model_names,
         )
 
 
@@ -60,6 +62,9 @@ class LLMProvider(BaseModel):
     custom_config: dict[str, str] | None
     default_model_name: str
     fast_default_model_name: str | None
+    is_public: bool = True
+    groups: list[int] | None = None
+    display_model_names: list[str] | None
 
 
 class LLMProviderUpsertRequest(LLMProvider):
@@ -86,9 +91,12 @@ class FullLLMProvider(LLMProvider):
             default_model_name=llm_provider_model.default_model_name,
             fast_default_model_name=llm_provider_model.fast_default_model_name,
             is_default_provider=llm_provider_model.is_default_provider,
+            display_model_names=llm_provider_model.display_model_names,
             model_names=(
                 llm_provider_model.model_names
                 or fetch_models_for_provider(llm_provider_model.provider)
                 or [llm_provider_model.default_model_name]
             ),
+            is_public=llm_provider_model.is_public,
+            groups=[group.id for group in llm_provider_model.groups],
         )

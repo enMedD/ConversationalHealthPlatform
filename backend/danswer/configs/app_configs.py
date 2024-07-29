@@ -214,14 +214,19 @@ EXPERIMENTAL_CHECKPOINTING_ENABLED = (
 
 DEFAULT_PRUNING_FREQ = 60 * 60 * 24  # Once a day
 
-PREVENT_SIMULTANEOUS_PRUNING = (
-    os.environ.get("PREVENT_SIMULTANEOUS_PRUNING", "").lower() == "true"
+ALLOW_SIMULTANEOUS_PRUNING = (
+    os.environ.get("ALLOW_SIMULTANEOUS_PRUNING", "").lower() == "true"
 )
 
 # This is the maxiumum rate at which documents are queried for a pruning job. 0 disables the limitation.
 MAX_PRUNING_DOCUMENT_RETRIEVAL_PER_MINUTE = int(
     os.environ.get("MAX_PRUNING_DOCUMENT_RETRIEVAL_PER_MINUTE", 0)
 )
+
+# comma delimited list of zendesk article labels to skip indexing for
+ZENDESK_CONNECTOR_SKIP_ARTICLE_LABELS = os.environ.get(
+    "ZENDESK_CONNECTOR_SKIP_ARTICLE_LABELS", ""
+).split(",")
 
 
 #####
@@ -243,6 +248,9 @@ DISABLE_INDEX_UPDATE_ON_SWAP = (
 # fairly large amount of memory in order to increase substantially, since
 # each worker loads the embedding models into memory.
 NUM_INDEXING_WORKERS = int(os.environ.get("NUM_INDEXING_WORKERS") or 1)
+NUM_SECONDARY_INDEXING_WORKERS = int(
+    os.environ.get("NUM_SECONDARY_INDEXING_WORKERS") or NUM_INDEXING_WORKERS
+)
 # More accurate results at the expense of indexing speed and index size (stores additional 4 MINI_CHUNK vectors)
 ENABLE_MINI_CHUNK = os.environ.get("ENABLE_MINI_CHUNK", "").lower() == "true"
 # Finer grained chunking for more detail retention

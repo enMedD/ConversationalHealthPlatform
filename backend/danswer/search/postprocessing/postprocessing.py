@@ -4,7 +4,7 @@ from typing import cast
 
 import numpy
 
-from danswer.configs.constants import MAX_CHUNK_TITLE_LEN
+from danswer.configs.app_configs import BLURB_SIZE
 from danswer.configs.constants import RETURN_SEPARATOR
 from danswer.configs.model_configs import CROSS_ENCODER_RANGE_MAX
 from danswer.configs.model_configs import CROSS_ENCODER_RANGE_MIN
@@ -12,6 +12,9 @@ from danswer.document_index.document_index_utils import (
     translate_boost_count_to_multiplier,
 )
 from danswer.llm.interfaces import LLM
+from danswer.natural_language_processing.search_nlp_models import (
+    CrossEncoderEnsembleModel,
+)
 from danswer.search.models import ChunkMetric
 from danswer.search.models import InferenceChunk
 from danswer.search.models import InferenceChunkUncleaned
@@ -20,7 +23,6 @@ from danswer.search.models import MAX_METRICS_CONTENT
 from danswer.search.models import RerankMetricsContainer
 from danswer.search.models import SearchQuery
 from danswer.search.models import SearchType
-from danswer.search.search_nlp_models import CrossEncoderEnsembleModel
 from danswer.secondary_llm_flows.chunk_usefulness import llm_batch_eval_sections
 from danswer.utils.logger import setup_logger
 from danswer.utils.threadpool_concurrency import FunctionCall
@@ -58,8 +60,14 @@ def cleanup_chunks(chunks: list[InferenceChunkUncleaned]) -> list[InferenceChunk
         if chunk.content.startswith(chunk.title):
             return chunk.content[len(chunk.title) :].lstrip()
 
-        if chunk.content.startswith(chunk.title[:MAX_CHUNK_TITLE_LEN]):
-            return chunk.content[MAX_CHUNK_TITLE_LEN:].lstrip()
+        # BLURB SIZE is by token instead of char but each token is at least 1 char
+        # If this prefix matches the content, it's assumed the title was prepended
+        if chunk.content.startswith(chunk.title[:BLURB_SIZE]):
+            return (
+                chunk.content.split(RETURN_SEPARATOR, 1)[-1]
+                if RETURN_SEPARATOR in chunk.content
+                else chunk.content
+            )
 
         return chunk.content
 
@@ -278,17 +286,17 @@ def search_postprocessing(
             _log_top_section_links(search_query.search_type.value, reranked_sections)
             yield reranked_sections
 
-    llm_section_selection = cast(
-        list[str] | None,
-        post_processing_results.get(str(llm_filter_task_id))
-        if llm_filter_task_id
-        else None,
-    )
-    if llm_section_selection is not None:
-        yield [
-            index
-            for index, section in enumerate(reranked_sections or retrieved_sections)
-            if section.center_chunk.unique_id in llm_section_selection
+    llm_selected_section_ids = (
+        [
+            section.center_chunk.unique_id
+            for section in post_processing_results.get(str(llm_filter_task_id), [])
         ]
-    else:
-        yield cast(list[int], [])
+        if llm_filter_task_id
+        else []
+    )
+
+    yield [
+        index
+        for index, section in enumerate(reranked_sections or retrieved_sections)
+        if section.center_chunk.unique_id in llm_selected_section_ids
+    ]

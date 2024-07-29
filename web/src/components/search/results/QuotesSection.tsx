@@ -48,7 +48,7 @@ const QuoteDisplay = ({ quoteInfo }: { quoteInfo: Quote }) => {
       )}
       <button className="text-sm flex w-fit">
         <a
-          className="flex max-w-[300px] shrink box-border p-2 border border-border rounded-lg hover:bg-hover-light"
+          className="flex max-w-[250px] shrink box-border p-2 border border-border rounded-lg hover:bg-hover-light"
           href={quoteInfo.link || undefined}
           target="_blank"
           rel="noopener noreferrer"
@@ -58,15 +58,6 @@ const QuoteDisplay = ({ quoteInfo }: { quoteInfo: Quote }) => {
             {quoteInfo.semantic_identifier || quoteInfo.document_id}
           </p>
         </a>
-
-        {/* <div
-          className="cursor-pointer h-full pt-2 pb-2 px-1 border-t border-b border-r border-gray-800 rounded-r-lg hover:bg-gray-800"
-          onClick={() => setDetailIsOpen(!detailIsOpen)}
-        >
-          <div className="pt-0.5 mx-auto h-[20px]">
-            <ZoomInIcon className="text-gray-500" size={14} />
-          </div>
-        </div> */}
       </button>
     </div>
   );
