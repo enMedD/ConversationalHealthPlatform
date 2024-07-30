@@ -8,7 +8,6 @@ from pydantic import validator
 
 from danswer.auth.schemas import UserRole
 from danswer.configs.constants import AuthType
-from danswer.danswerbot.slack.config import VALID_SLACK_FILTERS
 from danswer.db.models import AllowedAnswerFilters
 from danswer.db.models import ChannelConfig
 from danswer.db.models import SlackBotConfig as SlackBotConfigModel
@@ -158,7 +157,7 @@ class SlackBotTokens(BaseModel):
     class Config:
         frozen = True
 
-
+# TODO: remove this table
 class SlackBotConfigCreationRequest(BaseModel):
     # currently, a persona is created for each slack bot config
     # in the future, `document_sets` will probably be replaced
@@ -180,14 +179,6 @@ class SlackBotConfigCreationRequest(BaseModel):
     response_type: SlackBotResponseType
     standard_answer_categories: list[int] = []
 
-    @validator("answer_filters", pre=True)
-    def validate_filters(cls, value: list[str]) -> list[str]:
-        if any(test not in VALID_SLACK_FILTERS for test in value):
-            raise ValueError(
-                f"Slack Answer filters must be one of {VALID_SLACK_FILTERS}"
-            )
-        return value
-
     @root_validator
     def validate_document_sets_and_persona_id(
         cls, values: dict[str, Any]
@@ -197,7 +188,7 @@ class SlackBotConfigCreationRequest(BaseModel):
 
         return values
 
-
+# TODO: remove this table
 class SlackBotConfig(BaseModel):
     id: int
     persona: PersonaSnapshot | None
