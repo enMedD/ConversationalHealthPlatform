@@ -152,7 +152,7 @@ export const AIMessage = ({
   const shouldShowLoader =
     !toolCall || (toolCall.tool_name === SEARCH_TOOL_NAME && !content);
   const defaultLoader = shouldShowLoader ? (
-    <div className="my-auto text-sm">
+    <div className="text-sm my-auto">
       <ThreeDots
         height="30"
         width="50"
@@ -168,7 +168,7 @@ export const AIMessage = ({
 
   return (
     <div className={"py-5 px-5 flex -mr-6 w-full"}>
-      <div className="relative mx-auto w-searchbar-xs 2xl:w-searchbar-sm 3xl:w-searchbar">
+      <div className="mx-auto w-searchbar-xs 2xl:w-searchbar-sm 3xl:w-searchbar relative">
         <div className="ml-8">
           <div className="flex">
             <AssistantIcon
@@ -176,7 +176,7 @@ export const AIMessage = ({
               assistant={alternativeAssistant || currentPersona}
             />
 
-            <div className="my-auto ml-2 font-bold text-emphasis">
+            <div className="font-bold text-emphasis ml-2 my-auto">
               {personaName || "enMedD CHP"}
             </div>
 
@@ -185,7 +185,7 @@ export const AIMessage = ({
               handleShowRetrieved !== undefined &&
               isCurrentlyShowingRetrieved !== undefined &&
               !retrievalDisabled && (
-                <div className="absolute flex ml-8 w-message-xs 2xl:w-message-sm 3xl:w-message-default">
+                <div className="flex w-message-xs 2xl:w-message-sm 3xl:w-message-default absolute ml-8">
                   <div className="ml-auto">
                     <ShowHideDocsButton
                       messageId={messageId}
@@ -197,7 +197,7 @@ export const AIMessage = ({
               )}
           </div>
 
-          <div className="mt-1 ml-8 break-words w-message-xs 2xl:w-message-sm 3xl:w-message-default">
+          <div className="w-message-xs 2xl:w-message-sm 3xl:w-message-default break-words mt-1 ml-8">
             {(!toolCall || toolCall.tool_name === SEARCH_TOOL_NAME) && (
               <>
                 {query !== undefined &&
@@ -263,7 +263,7 @@ export const AIMessage = ({
                 {typeof content === "string" ? (
                   <ReactMarkdown
                     key={messageId}
-                    className="max-w-full prose"
+                    className="prose max-w-full"
                     components={{
                       a: (props) => {
                         const { node, ...rest } = props;
@@ -315,8 +315,8 @@ export const AIMessage = ({
                     .filter(([_, document]) => document.semantic_identifier)
                     .map(([citationKey, document], ind) => {
                       const display = (
-                        <div className="flex px-2 py-1 text-sm border rounded max-w-350 text-ellipsis border-border">
-                          <div className="my-auto mr-1">
+                        <div className="max-w-350 text-ellipsis flex text-sm border border-border py-1 px-2 rounded flex">
+                          <div className="mr-1 my-auto">
                             <SourceIcon
                               sourceType={document.source_type}
                               iconSize={16}
@@ -387,7 +387,7 @@ function MessageSwitcher({
         icon={FiChevronLeft}
         onClick={currentPage === 1 ? undefined : handlePrevious}
       />
-      <span className="select-none text-emphasis text-medium">
+      <span className="text-emphasis text-medium select-none">
         {currentPage} / {totalPages}
       </span>
       <Hoverable
@@ -448,23 +448,23 @@ export const HumanMessage = ({
 
   return (
     <div
-      className="relative flex w-full pt-5 pb-1 -mr-6 lg:px-5"
+      className="pt-5 pb-1 px-5 flex -mr-6 w-full relative"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="w-full mx-auto 2xl:w-searchbar-sm 3xl:w-searchbar">
-        <div className="lg:ml-8">
+      <div className="mx-auto w-searchbar-xs 2xl:w-searchbar-sm 3xl:w-searchbar">
+        <div className="ml-8">
           <div className="flex">
             <div className="p-1 bg-blue-400 rounded-lg h-fit">
               <div className="text-inverted">
-                <FiUser size={16} className="mx-auto my-auto" />
+                <FiUser size={16} className="my-auto mx-auto" />
               </div>
             </div>
 
-            <div className="my-auto ml-2 font-bold text-emphasis">You</div>
+            <div className="font-bold text-emphasis ml-2 my-auto">You</div>
           </div>
-          <div className="flex flex-wrap mx-auto mt-1 ml-8 w-searchbar-xs 2xl:w-searchbar-sm 3xl:w-searchbar-default">
-            <div className="break-words w-message-xs 2xl:w-message-sm 3xl:w-message-default">
+          <div className="mx-auto mt-1 ml-8 w-searchbar-xs 2xl:w-searchbar-sm 3xl:w-searchbar-default flex flex-wrap">
+            <div className="w-message-xs 2xl:w-message-sm 3xl:w-message-default break-words">
               <FileDisplay files={files || []} />
 
               {isEditing ? (
@@ -525,7 +525,7 @@ export const HumanMessage = ({
                         }
                       }}
                     />
-                    <div className="flex justify-end gap-2 pr-4 mt-2">
+                    <div className="flex justify-end mt-2 gap-2 pr-4">
                       <button
                         className={`
                           w-fit 
@@ -561,7 +561,7 @@ export const HumanMessage = ({
                   </div>
                 </div>
               ) : typeof content === "string" ? (
-                <div className="flex flex-col max-w-full prose preserve-lines">
+                <div className="flex flex-col preserve-lines prose max-w-full">
                   {content}
                 </div>
               ) : (

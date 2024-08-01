@@ -241,15 +241,6 @@ export const SideBar: React.FC<SideBarProps> = ({ isHeader, handleClose }) => {
                       ),
                       link: "/admin/performance/query-history",
                     },
-                    {
-                      name: (
-                        <div className="flex">
-                          <FiBarChart2 size={18} />
-                          <div className="ml-1">Custom Analytics</div>
-                        </div>
-                      ),
-                      link: "/admin/performance/custom-analytics",
-                    },
                   ],
                 },
               ]
