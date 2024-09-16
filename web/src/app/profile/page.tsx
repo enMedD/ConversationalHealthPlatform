@@ -38,9 +38,9 @@ export default async function ProfilePage() {
     console.log(`Some fetch failed for the main search page - ${e}`);
   }
 
-  const user = results[1] as User | null;
   const authTypeMetadata = results[0] as AuthTypeMetadata | null;
-  const combinedSettings = results[2] as CombinedSettings;
+  const combinedSettings = results[1] as CombinedSettings | null;
+  const user = results[2] as User | null;
 
   const authDisabled = authTypeMetadata?.authType === "disabled";
 
