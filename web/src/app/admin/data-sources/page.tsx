@@ -113,9 +113,9 @@ export default function Page() {
       <AdminPageTitle icon={<CloudUpload size={24} />} title="Data Sources" />
 
       <p className="p-2.5 pt-0">
-        Connect enMedD AI to your organization&apos;s knowledge sources.
-        We&apos;ll automatically sync your data into enMedD AI, so you can find
-        exactly what you&apos;re looking for in one place.
+        Connect Vanguard AI to your organization&apos;s knowledge sources.
+        We&apos;ll automatically sync your data into Vanguard AI, so you can
+        find exactly what you&apos;re looking for in one place.
       </p>
 
       <div className="relative md:w-96 mt-6">

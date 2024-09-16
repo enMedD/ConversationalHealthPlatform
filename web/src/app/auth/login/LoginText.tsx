@@ -15,7 +15,7 @@ export const LoginText = () => {
     <div className="text-dark-900">
       <h1 className="my-2 text-3xl font-bold">Login</h1>
       <p>
-        Welcome back to {settings?.workspaces?.workspace_name || "enMedD AI"}!
+        Welcome back to {settings?.workspaces?.workspace_name || "Vanguard AI"}!
         Please enter your details
       </p>
     </div>

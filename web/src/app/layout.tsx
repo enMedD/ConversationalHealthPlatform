@@ -17,13 +17,15 @@ export async function generateMetadata(): Promise<Metadata> {
   const logoLocation =
     dynamicSettings.workspaces && dynamicSettings.workspaces?.use_custom_logo
       ? "/api/workspace/logo"
-      : buildClientUrl("/enmedd-chp.ico");
+      : buildClientUrl("/vanguard-ai.ico");
 
   return {
-    title: dynamicSettings.workspaces?.workspace_name || "enMedD AI",
+    title: dynamicSettings.workspaces?.workspace_name || "Vanguard AI",
     description:
       dynamicSettings.workspaces?.workspace_description ||
-      "enMedD Conversational Health Platform",
+      "Vanguard AI: offers an AI model specifically designed to acquire \
+      knowledge and understanding complex legal and regulatory frameworks \
+      - such as Export Control",
     icons: {
       icon: logoLocation,
     },

@@ -11,7 +11,7 @@ export default function BillingTab({ user }: { user: UserTypes | null }) {
           <CardContent>
             <div>
               <div className="flex gap-4 items-center">
-                <span>enMedD Basic Plan</span> <Badge>Active</Badge>
+                <span>Vanguard AI Basic Plan</span> <Badge>Active</Badge>
               </div>
               <p>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
@@ -27,7 +27,7 @@ export default function BillingTab({ user }: { user: UserTypes | null }) {
           <CardContent>
             <div>
               <div className="flex gap-4 items-center">
-                <span>enMedD Basic Plan</span>
+                <span>Vanguard AI Basic Plan</span>
               </div>
               <p>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
@@ -43,7 +43,7 @@ export default function BillingTab({ user }: { user: UserTypes | null }) {
           <CardContent>
             <div>
               <div className="flex gap-4 items-center">
-                <span>enMedD Basic Plan</span>
+                <span>Vanguard AI Basic Plan</span>
               </div>
               <p>
                 Lorem ipsum dolor sit amet consectetur adipisicing elit.
@@ -72,7 +72,7 @@ const BillingCard = ({ plan, price, features, isActive }: BillingData) => {
         <div>
           <div className="flex flex-col">
             <div className="flex gap-4 items-center font">
-              <span>enMedD {plan} Plan</span>
+              <span>Vanguard AI {plan} Plan</span>
               {isActive && <Badge>Active</Badge>}
             </div>
             <p className="font-bold pt-4">

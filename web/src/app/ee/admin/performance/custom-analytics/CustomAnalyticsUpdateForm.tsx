@@ -90,7 +90,7 @@ export function CustomAnalyticsUpdateForm() {
             For security reasons, you must provide a secret key to update this
             script. This should be the value of the{" "}
             <i>CUSTOM_ANALYTICS_SECRET_KEY</i> environment variable set when
-            initially setting up enMedD AI.
+            initially setting up Vanguard AI.
           </>
         </SubLabel>
         <input

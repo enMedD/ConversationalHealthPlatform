@@ -23,14 +23,18 @@ const config = {
       },
       colors: {
         input: "hsl(var(--input))",
-        "input-colored": "#8DBAFF",
+        "input-colored": "#323745",
         ring: "hsl(var(--ring))",
         foreground: "hsl(var(--foreground))",
         primary: {
-          DEFAULT: "#2039f3",
-          foreground: "#b8d7ff",
-          300: "#D7EAFF",
-          light: "#F1F5F9",
+          DEFAULT: "#1e293b",
+          foreground: "#323745",
+          50: "#eeeff4",
+          100: "#dbdee6",
+          200: "#b0b5c7",
+          300: "#6b7597",
+          400: "#b0b5c7",
+          light: "#6b7597",
         },
         secondary: {
           DEFAULT: "var(--secondary)",

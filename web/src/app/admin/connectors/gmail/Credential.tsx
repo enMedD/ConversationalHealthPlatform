@@ -304,9 +304,9 @@ export const GmailOAuthSection = ({
     return (
       <div>
         <p className="text-sm mb-2">
-          When using a Gmail Service Account, you can either have enMedD AI act
-          as the service account itself OR you can specify an account for the
-          service account to imassistantte.
+          When using a Gmail Service Account, you can either have Vanguard AI
+          act as the service account itself OR you can specify an account for
+          the service account to imassistantte.
           <br />
           <br />
           If you want to use the service account itself, leave the{" "}
@@ -363,7 +363,7 @@ export const GmailOAuthSection = ({
                   <TextFormField
                     name="gmail_delegated_user"
                     label="[Optional] User email to imassistantte:"
-                    subtext="If left blank, enMedD AI will use the service account itself."
+                    subtext="If left blank, Vanguard AI will use the service account itself."
                   />
                   <div className="flex">
                     <button

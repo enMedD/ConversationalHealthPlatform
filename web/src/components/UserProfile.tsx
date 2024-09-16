@@ -8,9 +8,9 @@ function getNameInitials(full_name: string) {
 
 const generateGradient = (initials: string) => {
   const colors = {
-    primary: "#2039f3",
-    primaryForeground: "#b8d7ff",
-    success: "#69c57d",
+    primary: "#000000",
+    primaryForeground: "#36364e",
+    success: "#21212d",
   };
 
   const color1 =

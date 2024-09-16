@@ -77,7 +77,7 @@ const MainSection = () => {
       <Text>
         The Salesforce connector allows you to index and search through your
         Salesforce data. Once setup, all indicated Salesforce data will be will
-        be queryable within enMedD AI.
+        be queryable within Vanguard AI.
       </Text>
 
       <Title className="mt-6 mb-2 ml-auto mr-auto">
@@ -243,10 +243,10 @@ const MainSection = () => {
                       {" "}
                       here{" "}
                     </a>
-                    for an example of how enMedD AI uses the objects. <br />
+                    for an example of how Vanguard AI uses the objects. <br />
                     <br />
-                    If unsure, don&apos;t specify any objects and enMedD AI will
-                    default to indexing by &apos;Account&apos;.
+                    If unsure, don&apos;t specify any objects and Vanguard AI
+                    will default to indexing by &apos;Account&apos;.
                     <br />
                     <br />
                     Hint: Use the singular form of the object name (e.g.,

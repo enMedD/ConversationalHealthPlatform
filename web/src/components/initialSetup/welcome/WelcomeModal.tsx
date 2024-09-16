@@ -116,10 +116,10 @@ export function _WelcomeModal({ user }: { user: User | null }) {
             </Text>
             <div>
               <Text>
-                Connectors are the way that enMedD AI gets data from your
+                Connectors are the way that Vanguard AI gets data from your
                 organization&apos;s various data sources. Once setup, we&apos;ll
-                automatically sync data from your apps and docs into enMedD AI,
-                so you can search through all of them in one place.
+                automatically sync data from your apps and docs into Vanguard
+                AI, so you can search through all of them in one place.
               </Text>
 
               <div className="flex mt-3">
@@ -216,11 +216,11 @@ export function _WelcomeModal({ user }: { user: User | null }) {
       );
       break;
     default:
-      title = "🎉 Welcome to enMedD AI";
+      title = "🎉 Welcome to Vanguard AI";
       body = (
         <>
           <div>
-            <Text>How are you planning on using enMedD AI?</Text>
+            <Text>How are you planning on using Vanguard AI?</Text>
           </div>
           <Divider />
           <UsageTypeSection

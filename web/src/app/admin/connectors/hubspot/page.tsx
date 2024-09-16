@@ -87,8 +87,8 @@ const Main = () => {
   return (
     <>
       <Text>
-        This connector allows you to sync all your HubSpot Tickets into enMedD
-        AI.
+        This connector allows you to sync all your HubSpot Tickets into Vanguard
+        AI AI.
       </Text>
 
       <Title className="mt-6 mb-2 ml-auto mr-auto">

@@ -119,7 +119,7 @@ const Main = () => {
         <>
           <Text>
             To get started you&apos;ll need to create an internal integration in
-            Notion for enMedD AI. Follow the instructions in the&nbsp;
+            Notion for Vanguard AI. Follow the instructions in the&nbsp;
             <a
               href="https://developers.notion.com/docs/create-a-notion-integration"
               target="_blank"
@@ -129,7 +129,7 @@ const Main = () => {
             &nbsp; on the Notion website, to create a new integration. Once
             you&apos;ve created an integration, copy the integration secret
             token and paste it below. Follow the remaining instructions on the
-            Notion docs to allow enMedD AI to read Notion Databases and Pages
+            Notion docs to allow Vanguard AI to read Notion Databases and Pages
             using the new integration.
           </Text>
           <Card className="mt-2 mb-4">
@@ -144,7 +144,7 @@ const Main = () => {
                 }
                 validationSchema={Yup.object().shape({
                   notion_integration_token: Yup.string().required(
-                    "Please enter the Notion Integration token for the enMedD AI integration."
+                    "Please enter the Notion Integration token for the Vanguard AI integration."
                   ),
                 })}
                 initialValues={{

@@ -57,7 +57,7 @@ export const WorkSpaceSidebar = ({
             >
               {workspaces!.workspace_name
                 ? workspaces!.workspace_name
-                : "enMedD AI"}
+                : "Vanguard AI"}
             </CustomTooltip>
           </div>
         </div>
