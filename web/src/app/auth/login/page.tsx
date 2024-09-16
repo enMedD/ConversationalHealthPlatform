@@ -14,7 +14,7 @@ import Link from "next/link";
 import { Logo } from "@/components/Logo";
 import { LoginText } from "./LoginText";
 import Image from "next/image";
-import LoginImage from "../../../../public/login_page_img.webp";
+import LoginImage from "../../../../public/logo-brand.png";
 
 const Page = async ({
   searchParams,
