@@ -4,7 +4,7 @@ assistants:
   # This id field can be left blank for other default assistants, however an id 0 assistant must exist
   # Careful setting specific IDs, this won't autoincrement the next ID value for postgres
   - id: 0
-    name: "enMedD AI"
+    name: "Vanguard AI"
     description: >
       Assistant with access to documents from your Connected Sources.
     # Default Prompt objects attached to the assistant, see prompts.yaml
