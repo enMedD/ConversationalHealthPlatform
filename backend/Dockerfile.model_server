@@ -1,0 +1,37 @@
+FROM python:3.11.7-slim-bookworm
+
+COPY ./requirements/model_server.txt /tmp/requirements.txt
+RUN pip install --no-cache-dir --upgrade -r /tmp/requirements.txt
+
+RUN apt-get remove -y --allow-remove-essential perl-base && \
+    apt-get autoremove -y
+
+# Pre-downloading models for setups with limited egress
+RUN python -c "from transformers import AutoModel, AutoTokenizer, TFDistilBertForSequenceClassification; \
+from huggingface_hub import snapshot_download; \
+AutoTokenizer.from_pretrained('danswer/intent-model'); \
+AutoTokenizer.from_pretrained('intfloat/e5-base-v2'); \
+AutoTokenizer.from_pretrained('mixedbread-ai/mxbai-rerank-xsmall-v1'); \
+snapshot_download('danswer/intent-model'); \
+snapshot_download('intfloat/e5-base-v2'); \
+snapshot_download('mixedbread-ai/mxbai-rerank-xsmall-v1')"
+
+WORKDIR /app
+
+# Utils used by model server
+COPY ./enmedd/utils/logger.py /app/enmedd/utils/logger.py
+
+# Place to fetch version information
+COPY ./enmedd/__init__.py /app/enmedd/__init__.py
+
+# Shared between enMedD AI Backend and Model Server
+COPY ./shared_configs /app/shared_configs
+
+# Model Server main code
+COPY ./model_server /app/model_server
+
+ENV PYTHONPATH /app
+
+EXPOSE 9000
+
+CMD ["uvicorn", "model_server.main:app", "--host", "0.0.0.0", "--port", "9000"]
