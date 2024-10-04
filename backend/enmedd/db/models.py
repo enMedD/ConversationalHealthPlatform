@@ -4,7 +4,7 @@ from enum import Enum as PyEnum
 from typing import Any
 from typing import Literal
 from typing import Optional
-from typing import TypedDict
+from typing_extensions import TypedDict
 from uuid import UUID
 
 from fastapi_users_db_sqlalchemy import SQLAlchemyBaseOAuthAccountTableUUID
