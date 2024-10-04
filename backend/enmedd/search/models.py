@@ -47,8 +47,8 @@ class ChunkMetric(BaseModel):
 class ChunkContext(BaseModel):
     # If not specified (None), picked up from Persona settings if there is space
     # if specified (even if 0), it always uses the specified number of chunks above and below
-    chunks_above: int | None = None
-    chunks_below: int | None = None
+    chunks_above: int = 0
+    chunks_below: int = 0
     full_doc: bool = False
 
     @field_validator("chunks_above", "chunks_below")
@@ -174,7 +174,7 @@ class InferenceSection(InferenceChunk):
     def from_chunk(
         cls, inf_chunk: InferenceChunk, content: str | None = None
     ) -> "InferenceSection":
-        inf_chunk_data = inf_chunk.dict()
+        inf_chunk_data = inf_chunk.model_dump()
         return cls(**inf_chunk_data, combined_content=content or inf_chunk.content)
 
 
@@ -201,12 +201,11 @@ class SearchDoc(BaseModel):
     primary_owners: list[str] | None
     secondary_owners: list[str] | None
 
-    def dict(self, *args: list, **kwargs: dict[str, Any]) -> dict[str, Any]:  # type: ignore
-        initial_dict = super().dict(*args, **kwargs)  # type: ignore
+    def model_dump(self, *args: list, **kwargs: dict[str, Any]) -> dict[str, Any]:  # type: ignore
+        initial_dict = super().model_dump(*args, **kwargs)  # type: ignore
         initial_dict["updated_at"] = (
             self.updated_at.isoformat() if self.updated_at else None
         )
-        return initial_dict
 
 
 class SavedSearchDoc(SearchDoc):
@@ -220,7 +219,7 @@ class SavedSearchDoc(SearchDoc):
         """IMPORTANT: careful using this and not providing a db_doc_id If db_doc_id is not
         provided, it won't be able to actually fetch the saved doc and info later on. So only skip
         providing this if the SavedSearchDoc will not be used in the future"""
-        search_doc_data = search_doc.dict()
+        search_doc_data = search_doc.model_dump()
         search_doc_data["score"] = search_doc_data.get("score") or 0.0
         return cls(**search_doc_data, db_doc_id=db_doc_id)
 

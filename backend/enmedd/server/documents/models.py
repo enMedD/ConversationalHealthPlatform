@@ -30,13 +30,13 @@ class ChunkInfo(BaseModel):
 
 class IndexAttemptSnapshot(BaseModel):
     id: int
-    status: IndexingStatus | None
+    status: Optional[IndexingStatus] = None
     new_docs_indexed: int  # only includes completely new docs
     total_docs_indexed: int  # includes docs that are updated
     docs_removed_from_index: int
-    error_msg: str | None
-    full_exception_trace: str | None
-    time_started: str | None
+    error_msg: Optional[str] = None
+    full_exception_trace: Optional[str] = None
+    time_started: Optional[str] = None
     time_updated: str
 
     @classmethod
@@ -69,8 +69,10 @@ class ConnectorBase(BaseModel):
     source: DocumentSource
     input_type: InputType
     connector_specific_config: dict[str, Any]
-    refresh_freq: int | None  # In seconds, None for one time index with no refresh
-    prune_freq: int | None
+    refresh_freq: Optional[
+        int
+    ] = None  # In seconds, None for one time index with no refresh
+    prune_freq: Optional[int] = None
     disabled: bool
 
 
@@ -107,7 +109,7 @@ class CredentialBase(BaseModel):
 
 class CredentialSnapshot(CredentialBase):
     id: int
-    user_id: UUID | None
+    user_id: Optional[UUID] = None
     time_created: datetime
     time_updated: datetime
 
@@ -132,7 +134,7 @@ class CCPairFullInfo(BaseModel):
     connector: ConnectorSnapshot
     credential: CredentialSnapshot
     index_attempts: list[IndexAttemptSnapshot]
-    latest_deletion_attempt: DeletionAttemptSnapshot | None
+    latest_deletion_attempt: Optional[DeletionAttemptSnapshot] = None
     groups: list[MinimalTeamspaceSnapshot] = []
 
     @classmethod
@@ -167,17 +169,17 @@ class ConnectorIndexingStatus(BaseModel):
     """Represents the latest indexing status of a connector"""
 
     cc_pair_id: int
-    name: str | None
+    name: Optional[str] = None
     connector: ConnectorSnapshot
     credential: CredentialSnapshot
     owner: str
     public_doc: bool
-    last_status: IndexingStatus | None
-    last_success: datetime | None
+    last_status: Optional[IndexingStatus] = None
+    last_success: Optional[datetime] = None
     docs_indexed: int
-    error_msg: str | None
-    latest_index_attempt: IndexAttemptSnapshot | None
-    deletion_attempt: DeletionAttemptSnapshot | None
+    error_msg: Optional[str] = None
+    latest_index_attempt: Optional[IndexAttemptSnapshot] = None
+    deletion_attempt: Optional[DeletionAttemptSnapshot] = None
     is_deletable: bool
 
 
@@ -187,13 +189,13 @@ class ConnectorCredentialPairIdentifier(BaseModel):
 
 
 class ConnectorCredentialPairMetadata(BaseModel):
-    name: str | None
+    name: Optional[str] = None
     is_public: bool
 
 
 class ConnectorCredentialPairDescriptor(BaseModel):
     id: int
-    name: str | None
+    name: Optional[str] = None
     connector: ConnectorSnapshot
     credential: CredentialSnapshot
     groups: Optional[list[MinimalTeamspaceSnapshot]] = []
@@ -201,7 +203,7 @@ class ConnectorCredentialPairDescriptor(BaseModel):
 
 class RunConnectorRequest(BaseModel):
     connector_id: int
-    credential_ids: list[int] | None
+    credential_ids: Optional[list[int]] = None
     from_beginning: bool = False
 
 
@@ -238,8 +240,8 @@ class GoogleServiceAccountKey(BaseModel):
 
 
 class GoogleServiceAccountCredentialRequest(BaseModel):
-    google_drive_delegated_user: str | None  # email of user to imassistantte
-    gmail_delegated_user: str | None  # email of user to imassistantte
+    google_drive_delegated_user: Optional[str] = None  # email of user to imassistantte
+    gmail_delegated_user: Optional[str] = None  # email of user to imassistantte
 
 
 class FileUploadResponse(BaseModel):
@@ -247,7 +249,7 @@ class FileUploadResponse(BaseModel):
 
 
 class ObjectCreationIdResponse(BaseModel):
-    id: int | str
+    id: Optional[int] = str
 
 
 class AuthStatus(BaseModel):

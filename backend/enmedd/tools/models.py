@@ -23,12 +23,10 @@ class ToolRunnerResponse(BaseModel):
     tool_response: Optional[ToolResponse] = None
     tool_message_content: Optional[Union[str, List[Union[str, Dict[str, Any]]]]] = None
 
-    @model_validator(mode="before")
-    def validate_tool_runner_response(
-        cls, values: Dict[str, Union[ToolResponse, str]]
-    ) -> Dict[str, Union[ToolResponse, str]]:
+    @model_validator(mode="after")
+    def validate_tool_runner_response(self) -> "ToolRunnerResponse":
         fields = ["tool_response", "tool_message_content", "tool_run_kickoff"]
-        provided = sum(1 for field in fields if values.get(field) is not None)
+        provided = sum(1 for field in fields if getattr(self, field) is not None)
 
         if provided != 1:
             raise ValueError(
@@ -36,8 +34,10 @@ class ToolRunnerResponse(BaseModel):
                 "or 'tool_run_kickoff' must be provided"
             )
 
-        return values
+        return self
 
 
 class ToolCallFinalResult(ToolCallKickoff):
-    tool_result: Any  # we would like to use JSON_ro, but can't due to its recursive nature
+    tool_result: Any = (
+        None  # we would like to use JSON_ro, but can't due to its recursive nature
+    )

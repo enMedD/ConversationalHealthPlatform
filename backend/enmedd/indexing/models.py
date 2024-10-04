@@ -72,7 +72,7 @@ class DocMetadataAwareIndexChunk(IndexChunk):
         document_sets: set[str],
         boost: int,
     ) -> "DocMetadataAwareIndexChunk":
-        index_chunk_data = index_chunk.dict()
+        index_chunk_data = index_chunk.model_dump()
         return cls(
             **index_chunk_data,
             access=access,
@@ -87,6 +87,9 @@ class EmbeddingModelDetail(BaseModel):
     normalize: bool
     query_prefix: str | None
     passage_prefix: str | None
+
+    # This disables the "model_" protected namespace for pydantic
+    model_config = {"protected_namespaces": ()}
 
     @classmethod
     def from_model(cls, embedding_model: "EmbeddingModel") -> "EmbeddingModelDetail":

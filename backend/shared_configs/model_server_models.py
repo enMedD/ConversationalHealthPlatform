@@ -8,6 +8,9 @@ class EmbedRequest(BaseModel):
     max_context_length: int
     normalize_embeddings: bool
 
+    # This disables the "model_" protected namespace for pydantic
+    model_config = {"protected_namespaces": ()}
+
 
 class EmbedResponse(BaseModel):
     embeddings: list[list[float]]

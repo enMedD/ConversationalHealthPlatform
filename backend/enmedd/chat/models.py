@@ -34,17 +34,30 @@ class QADocsResponse(RetrievalDocs):
     applied_time_cutoff: datetime | None
     recency_bias_multiplier: float
 
-    def dict(self, *args: list, **kwargs: dict[str, Any]) -> dict[str, Any]:  # type: ignore
-        initial_dict = super().dict(*args, **kwargs)  # type: ignore
+    def model_dump(self, *args: list, **kwargs: dict[str, Any]) -> dict[str, Any]:  # type: ignore
+        initial_dict = super().model_dump(mode="json", *args, **kwargs)  # type: ignore
         initial_dict["applied_time_cutoff"] = (
             self.applied_time_cutoff.isoformat() if self.applied_time_cutoff else None
         )
+
         return initial_dict
 
 
 # Second chunk of info for streaming QA
 class LLMRelevanceFilterResponse(BaseModel):
     relevant_chunk_indices: list[int]
+
+
+class RelevanceAnalysis(BaseModel):
+    relevant: bool
+    content: str | None = None
+
+
+class SectionRelevancePiece(RelevanceAnalysis):
+    """LLM analysis mapped to an Inference Section"""
+
+    document_id: str
+    chunk_id: int  # ID of the center chunk for a given inference section
 
 
 # TODO: replace all the class names into enmedd

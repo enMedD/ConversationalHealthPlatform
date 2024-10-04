@@ -665,4 +665,4 @@ def stream_chat_message(
             litellm_additional_headers=litellm_additional_headers,
         )
         for obj in objects:
-            yield get_json_line(obj.dict())
+            yield get_json_line(obj.model_dump())

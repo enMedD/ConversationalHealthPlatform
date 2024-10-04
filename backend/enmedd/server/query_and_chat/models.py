@@ -182,21 +182,23 @@ class SearchFeedbackRequest(BaseModel):
 
 class ChatMessageDetail(BaseModel):
     message_id: int
-    parent_message: Optional[int] = None
-    latest_child_message: Optional[int] = None
+    parent_message: int | None = None
+    latest_child_message: int | None = None
     message: str
-    rephrased_query: Optional[str] = None
-    context_docs: Optional[RetrievalDocs] = None
+    rephrased_query: str | None = None
+    context_docs: RetrievalDocs | None = None
     message_type: MessageType
     time_sent: datetime
-    alternate_assistant_id: Optional[str] = None
+    overridden_model: str | None
+    alternate_assistant_id: int | None = None
     # Dict mapping citation number to db_doc_id
-    citations: Optional[Dict[int, int]] = None
-    files: List[FileDescriptor]
-    tool_calls: List[ToolCallFinalResult]
+    chat_session_id: int | None = None
+    citations: dict[int, int] | None = None
+    files: list[FileDescriptor]
+    tool_calls: list[ToolCallFinalResult]
 
-    def dict(self, *args: list, **kwargs: Dict[str, Any]) -> Dict[str, Any]:  # type: ignore
-        initial_dict = super().dict(*args, **kwargs)  # type: ignore
+    def model_dump(self, *args: list, **kwargs: dict[str, Any]) -> dict[str, Any]:  # type: ignore
+        initial_dict = super().model_dump(mode="json", *args, **kwargs)  # type: ignore
         initial_dict["time_sent"] = self.time_sent.isoformat()
         return initial_dict
 

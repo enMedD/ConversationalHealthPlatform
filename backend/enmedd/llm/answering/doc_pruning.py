@@ -15,13 +15,14 @@ from enmedd.llm.utils import get_default_llm_tokenizer
 from enmedd.llm.utils import tokenizer_trim_content
 from enmedd.prompts.prompt_utils import build_doc_context_str
 from enmedd.search.models import InferenceChunk
+from enmedd.search.models import InferenceSection
 from enmedd.tools.search.search_utils import llm_doc_to_dict
 from enmedd.utils.logger import setup_logger
 
 
 logger = setup_logger()
 
-T = TypeVar("T", bound=LlmDoc | InferenceChunk)
+T = TypeVar("T", bound=LlmDoc | InferenceChunk | InferenceSection)
 
 _METADATA_TOKEN_ESTIMATE = 75
 

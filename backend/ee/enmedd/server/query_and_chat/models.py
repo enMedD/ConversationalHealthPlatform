@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
 from enmedd.configs.constants import DocumentSource
@@ -14,8 +16,8 @@ class DocumentSearchRequest(ChunkContext):
     retrieval_options: RetrievalDetails
     recency_bias_multiplier: float = 1.0
     # This is to forcibly skip (or run) the step, if None it uses the system defaults
-    skip_rerank: bool | None = None
-    skip_llm_chunk_filter: bool | None = None
+    skip_rerank: Optional[bool] = None
+    skip_llm_chunk_filter: Optional[bool] = None
 
 
 class BasicCreateChatMessageRequest(ChunkContext):
@@ -27,17 +29,17 @@ class BasicCreateChatMessageRequest(ChunkContext):
     # New message contents
     message: str
     # Defaults to using retrieval with no additional filters
-    retrieval_options: RetrievalDetails | None = None
+    retrieval_options: Optional[RetrievalDetails] = None
     # Allows the caller to specify the exact search query they want to use
     # will disable Query Rewording if specified
-    query_override: str | None = None
+    query_override: Optional[str] = None
     # If search_doc_ids provided, then retrieval options are unused
-    search_doc_ids: list[int] | None = None
+    search_doc_ids: Optional[list[int]] = None
 
 
 class SimpleDoc(BaseModel):
     semantic_identifier: str
-    link: str | None
+    link: Optional[str]
     blurb: str
     match_highlights: list[str]
     source_type: DocumentSource
@@ -45,11 +47,11 @@ class SimpleDoc(BaseModel):
 
 class ChatBasicResponse(BaseModel):
     # This is built piece by piece, any of these can be None as the flow could break
-    answer: str | None = None
-    answer_citationless: str | None = None
-    simple_search_docs: list[SimpleDoc] | None = None
-    error_msg: str | None = None
-    message_id: int | None = None
+    answer: Optional[str] = None
+    answer_citationless: Optional[str] = None
+    simple_search_docs: Optional[list[SimpleDoc]] = None
+    error_msg: Optional[str] = None
+    message_id: Optional[int] = None
 
 
 class ChatSessionDetails(BaseModel):
@@ -58,6 +60,6 @@ class ChatSessionDetails(BaseModel):
     assistant_id: int
     time_created: str
     shared_status: ChatSessionSharedStatus
-    folder_id: int | None
-    current_alternate_model: str | None = None
-    groups: list[MinimalTeamspaceSnapshot] | None
+    folder_id: Optional[int]
+    current_alternate_model: Optional[str] = None
+    groups: Optional[list[MinimalTeamspaceSnapshot]] = None

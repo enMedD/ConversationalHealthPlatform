@@ -4,7 +4,7 @@ from typing import Any
 from langchain_core.messages.ai import AIMessage
 from langchain_core.messages.tool import ToolCall
 from langchain_core.messages.tool import ToolMessage
-from pydantic import BaseModel
+from pydantic.v1 import BaseModel as BaseModel__v1
 
 from enmedd.llm.utils import get_default_llm_tokenizer
 
@@ -12,6 +12,7 @@ from enmedd.llm.utils import get_default_llm_tokenizer
 def build_tool_message(
     tool_call: ToolCall, tool_content: str | list[str | dict[str, Any]]
 ) -> ToolMessage:
+    print("TOOL CONTENT -----------------", tool_content)
     return ToolMessage(
         tool_call_id=tool_call["id"] or "",
         name=tool_call["name"],
@@ -19,7 +20,7 @@ def build_tool_message(
     )
 
 
-class ToolCallSummary(BaseModel):
+class ToolCallSummary(BaseModel__v1):
     tool_call_request: AIMessage
     tool_call_result: ToolMessage
 

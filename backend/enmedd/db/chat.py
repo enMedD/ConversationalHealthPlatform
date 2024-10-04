@@ -535,9 +535,11 @@ def get_retrieval_docs_from_chat_message(
 
 
 def translate_db_message_to_chat_message_detail(
-    chat_message: ChatMessage, remove_doc_content: bool = False
+    chat_message: ChatMessage,
+    remove_doc_content: bool = False,
 ) -> ChatMessageDetail:
     chat_msg_detail = ChatMessageDetail(
+        chat_session_id=chat_message.chat_session_id,
         message_id=chat_message.id,
         parent_message=chat_message.parent_message,
         latest_child_message=chat_message.latest_child_message,
