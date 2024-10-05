@@ -82,11 +82,29 @@ def mark_attempt_in_progress__no_commit(
     index_attempt.time_started = index_attempt.time_started or func.now()  # type: ignore
 
 
+def mark_attempt_in_progress(
+    index_attempt: IndexAttempt,
+    db_session: Session,
+) -> None:
+    index_attempt.status = IndexingStatus.IN_PROGRESS
+    index_attempt.time_started = index_attempt.time_started or func.now()  # type: ignore
+    db_session.commit()
+
+
 def mark_attempt_succeeded(
     index_attempt: IndexAttempt,
     db_session: Session,
 ) -> None:
     index_attempt.status = IndexingStatus.SUCCESS
+    db_session.add(index_attempt)
+    db_session.commit()
+
+
+def mark_attempt_partially_succeeded(
+    index_attempt: IndexAttempt,
+    db_session: Session,
+) -> None:
+    index_attempt.status = IndexingStatus.COMPLETED_WITH_ERRORS
     db_session.add(index_attempt)
     db_session.commit()
 
