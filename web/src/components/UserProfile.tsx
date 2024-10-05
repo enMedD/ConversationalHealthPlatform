@@ -1,18 +1,15 @@
 import { User } from "lucide-react";
 import React from "react";
-
-function getNameInitials(full_name: string) {
-  const names = full_name.split(" ");
+const getNameInitials = (fullName: string) => {
+  const names = fullName.split(" ");
   return names[0][0].toUpperCase() + names[names.length - 1][0].toUpperCase();
-}
-
+};
 const generateGradient = (initials: string) => {
   const colors = {
     primary: "#000000",
     primaryForeground: "#36364e",
     success: "#21212d",
   };
-
   const color1 =
     initials.charCodeAt(0) % 2 === 0 ? colors.primary : colors.success;
   const color2 =
@@ -23,17 +20,14 @@ const generateGradient = (initials: string) => {
     initials.charCodeAt(2) % 2 === 0
       ? colors.primary
       : colors.primaryForeground;
-
   return `linear-gradient(to right, ${color1}, ${color2}, ${color3})`;
 };
-
 interface UserProfileProps {
   user?: { full_name?: string } | null;
   onClick?: () => void;
   size?: number;
   textSize?: string;
 }
-
 export function UserProfile({
   user,
   onClick,
@@ -44,7 +38,6 @@ export function UserProfile({
     user && user.full_name
       ? generateGradient(getNameInitials(user.full_name))
       : "linear-gradient(to right, #e2e2e2, #ffffff)";
-
   return (
     <div
       className={`flex items-center justify-center rounded-full aspect-square ${textSize} font-medium text-inverted py-2`}

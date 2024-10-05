@@ -2,6 +2,7 @@
 
 import { FeedbackType } from "../types";
 import { useEffect, useRef, useState } from "react";
+import React from "react";
 import ReactMarkdown from "react-markdown";
 import { EnmeddDocument } from "@/lib/search/interfaces";
 import { SearchSummary, ShowHideDocsButton } from "./SearchSummary";
@@ -73,6 +74,11 @@ function FileDisplay({ files }: { files: FileDescriptor[] }) {
   );
 }
 
+interface FeedbackDetails {
+  message: string;
+  predefinedFeedback?: string;
+}
+
 export const AIMessage = ({
   alternativeAssistant,
   messageId,
@@ -95,6 +101,7 @@ export const AIMessage = ({
   currentFeedback,
   onClose,
   onSubmit,
+  isStreaming,
 }: {
   alternativeAssistant?: Assistant | null;
   currentAssistant: Assistant;
@@ -120,10 +127,30 @@ export const AIMessage = ({
     message: string;
     predefinedFeedback?: string;
   }) => void;
+  isStreaming?: boolean;
 }) => {
   const [isReady, setIsReady] = useState(false);
   const [isLikeModalOpen, setIsLikeModalOpen] = useState(false);
   const [isDislikeModalOpen, setIsDislikeModalOpen] = useState(false);
+  const [feedbackSubmitted, setFeedbackSubmitted] = useState(false);
+  const [showLikeButton, setShowLikeButton] = useState(true);
+  const [showDislikeButton, setShowDislikeButton] = useState(true);
+
+  const handleLikeSubmit = async (feedbackDetails: FeedbackDetails) => {
+    if (onSubmit) {
+      await onSubmit(feedbackDetails);
+      setFeedbackSubmitted(true);
+      setShowDislikeButton(false);
+    }
+  };
+
+  const handleDislikeSubmit = async (feedbackDetails: FeedbackDetails) => {
+    if (onSubmit) {
+      await onSubmit(feedbackDetails);
+      setFeedbackSubmitted(true);
+      setShowLikeButton(false);
+    }
+  };
 
   useEffect(() => {
     Prism.highlightAll();
@@ -165,7 +192,7 @@ export const AIMessage = ({
   ) : undefined;
 
   return (
-    <div className={"flex -mr-6 w-full pb-5"}>
+    <div className={`flex -mr-6 w-full pb-5`}>
       <div className="w-full">
         <div className="">
           <div className="flex">
@@ -196,14 +223,14 @@ export const AIMessage = ({
               )}
           </div>
 
-          <div className="pl-1.5 md:pl-12 break-words w-full pt-4">
+          <div className="pl-1.5 md:pl-12 break-words w-full">
             {(!toolCall || toolCall.tool_name === SEARCH_TOOL_NAME) && (
               <>
                 {query !== undefined &&
                   handleShowRetrieved !== undefined &&
                   isCurrentlyShowingRetrieved !== undefined &&
                   !retrievalDisabled && (
-                    <div className="mb-4">
+                    <div>
                       <SearchSummary
                         query={query}
                         hasDocs={hasDocs || false}
@@ -222,7 +249,7 @@ export const AIMessage = ({
                   query === undefined &&
                   !hasDocs &&
                   !retrievalDisabled && (
-                    <div className="my-1">
+                    <div className="pt-2">
                       <SkippedSearch handleForceSearch={handleForceSearch} />
                     </div>
                   )}
@@ -315,38 +342,41 @@ export const AIMessage = ({
                     .filter(([_, document]) => document.semantic_identifier)
                     .map(([citationKey, document], ind) => {
                       const display = (
-                        <Badge
-                          variant="secondary"
-                          className="cursor-pointer hover:bg-opacity-80"
-                        >
-                          <div className="my-auto mr-1">
-                            <SourceIcon
-                              sourceType={document.source_type}
-                              iconSize={16}
-                            />
-                          </div>
-                          [{citationKey}] {document!.semantic_identifier}
-                        </Badge>
+                        <div className="w-full flex gap-1.5">
+                          <SourceIcon
+                            sourceType={document.source_type}
+                            iconSize={16}
+                          />
+                          <p className="truncate">
+                            [{citationKey}] {document!.semantic_identifier}
+                          </p>
+                        </div>
                       );
                       if (document.link) {
                         return (
-                          <a
+                          <Badge
+                            variant="secondary"
+                            className="cursor-pointer hover:bg-opacity-75"
                             key={document.document_id}
-                            href={document.link}
-                            target="_blank"
-                            className="cursor-pointer"
                           >
-                            {display}
-                          </a>
+                            <a
+                              href={document.link}
+                              target="_blank"
+                              className="cursor-pointer flex truncate"
+                            >
+                              {display}
+                            </a>
+                          </Badge>
                         );
                       } else {
                         return (
-                          <div
+                          <Badge
+                            variant="secondary"
+                            className="cursor-pointer hover:bg-opacity-75"
                             key={document.document_id}
-                            className="cursor-default"
                           >
                             {display}
-                          </div>
+                          </Badge>
                         );
                       }
                     })}
@@ -356,82 +386,109 @@ export const AIMessage = ({
           </div>
           {handleFeedback && (
             <div className="flex flex-row gap-x-0.5 pl-1 md:pl-12 mt-1.5">
-              <CopyButton content={content.toString()} />
-              <CustomTooltip
-                trigger={
-                  <CustomModal
-                    trigger={
-                      <Button
-                        variant="ghost"
-                        size="smallIcon"
-                        onClick={() => {
-                          handleFeedback("like");
-                          setIsLikeModalOpen(true);
-                        }}
-                      >
-                        <ThumbsUp size={16} />
-                      </Button>
-                    }
-                    onClose={() => setIsLikeModalOpen(false)}
-                    open={isLikeModalOpen}
-                    title={
-                      <div className="flex text-2xl font-bold pb-6">
-                        <div className="my-auto mr-1">
-                          <ThumbsUpIcon className="my-auto mr-2 text-green-500" />
-                        </div>
-                        Provide additional feedback
-                      </div>
-                    }
-                  >
-                    <FeedbackModal
-                      feedbackType="like"
-                      onClose={onClose}
-                      onSubmit={onSubmit}
-                      onModalClose={() => setIsLikeModalOpen(false)}
-                    />
-                  </CustomModal>
-                }
-              >
-                Like
-              </CustomTooltip>
+              <CopyButton content={content.toString()} smallIcon />
 
-              <CustomTooltip
-                trigger={
-                  <CustomModal
-                    trigger={
-                      <Button
-                        variant="ghost"
-                        size="smallIcon"
-                        onClick={() => {
-                          handleFeedback("dislike");
-                          setIsDislikeModalOpen(true);
-                        }}
-                      >
-                        <ThumbsDown size={16} />
-                      </Button>
-                    }
-                    onClose={() => setIsDislikeModalOpen(false)}
-                    open={isDislikeModalOpen}
-                    title={
-                      <div className="flex text-2xl font-bold pb-6">
-                        <div className="my-auto mr-1">
-                          <ThumbsDownIcon className="my-auto mr-2 text-red-600" />
+              {showLikeButton && (
+                <CustomTooltip
+                  trigger={
+                    <CustomModal
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          size="smallIcon"
+                          onClick={() => {
+                            handleFeedback("like");
+                            setIsLikeModalOpen(true);
+                          }}
+                          className={
+                            feedbackSubmitted ? "pointer-events-none" : ""
+                          }
+                        >
+                          <ThumbsUp
+                            size={16}
+                            className={
+                              feedbackSubmitted
+                                ? "fill-primary stroke-primary cursor-not-allowed"
+                                : ""
+                            }
+                          />
+                        </Button>
+                      }
+                      onClose={() => setIsLikeModalOpen(false)}
+                      open={isLikeModalOpen}
+                      title={
+                        <div className="flex text-2xl font-bold pb-6">
+                          <div className="my-auto mr-1">
+                            <ThumbsUpIcon className="my-auto mr-2 text-green-500" />
+                          </div>
+                          Provide additional feedback
                         </div>
-                        Provide additional feedback
-                      </div>
-                    }
-                  >
-                    <FeedbackModal
-                      feedbackType="dislike"
-                      onClose={onClose}
-                      onSubmit={onSubmit}
-                      onModalClose={() => setIsDislikeModalOpen(false)}
-                    />
-                  </CustomModal>
-                }
-              >
-                Dislike
-              </CustomTooltip>
+                      }
+                    >
+                      <FeedbackModal
+                        feedbackType="like"
+                        onClose={onClose}
+                        onSubmit={handleLikeSubmit}
+                        onModalClose={() => setIsLikeModalOpen(false)}
+                      />
+                    </CustomModal>
+                  }
+                  side="bottom"
+                >
+                  Good response
+                </CustomTooltip>
+              )}
+
+              {showDislikeButton && (
+                <CustomTooltip
+                  trigger={
+                    <CustomModal
+                      trigger={
+                        <Button
+                          variant="ghost"
+                          size="smallIcon"
+                          onClick={() => {
+                            handleFeedback("dislike");
+                            setIsDislikeModalOpen(true);
+                          }}
+                          className={
+                            feedbackSubmitted ? "pointer-events-none" : ""
+                          }
+                        >
+                          <ThumbsDown
+                            size={16}
+                            className={
+                              feedbackSubmitted
+                                ? "fill-primary stroke-primary cursor-not-allowed"
+                                : ""
+                            }
+                          />
+                        </Button>
+                      }
+                      onClose={() => setIsDislikeModalOpen(false)}
+                      open={isDislikeModalOpen}
+                      title={
+                        <div className="flex text-2xl font-bold pb-6">
+                          <div className="my-auto mr-1">
+                            <ThumbsDownIcon className="my-auto mr-2 text-red-600" />
+                          </div>
+                          Provide additional feedback
+                        </div>
+                      }
+                    >
+                      <FeedbackModal
+                        feedbackType="dislike"
+                        onClose={onClose}
+                        onSubmit={handleDislikeSubmit}
+                        onModalClose={() => setIsDislikeModalOpen(false)}
+                      />
+                    </CustomModal>
+                  }
+                  side="bottom"
+                >
+                  Bad response
+                </CustomTooltip>
+              )}
             </div>
           )}
         </div>
@@ -452,24 +509,38 @@ function MessageSwitcher({
   handleNext: () => void;
 }) {
   return (
-    <div className="flex items-center text-sm space-x-2">
-      <Button
-        variant="ghost"
-        size="smallIcon"
-        onClick={currentPage === 1 ? undefined : handlePrevious}
+    <div className="flex items-center text-sm space-x-2 pt-2">
+      <CustomTooltip
+        trigger={
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={currentPage === 1 ? undefined : handlePrevious}
+          >
+            <ChevronLeft />
+          </Button>
+        }
+        asChild
       >
-        <ChevronLeft />
-      </Button>
-      <span className="select-none  text-medium">
+        Previous
+      </CustomTooltip>
+      <span className="select-none  text-medium min-w-8 text-center">
         {currentPage} / {totalPages}
       </span>
-      <Button
-        variant="ghost"
-        size="smallIcon"
-        onClick={currentPage === totalPages ? undefined : handleNext}
+      <CustomTooltip
+        trigger={
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={currentPage === totalPages ? undefined : handleNext}
+          >
+            <ChevronRight />
+          </Button>
+        }
+        asChild
       >
-        <ChevronRight />
-      </Button>
+        Next
+      </CustomTooltip>
     </div>
   );
 }
@@ -635,7 +706,7 @@ export const HumanMessage = ({
                 </div>
               ) : typeof content === "string" ? (
                 <div className="relative">
-                  <div className="flex flex-col max-w-full prose preserve-lines">
+                  <div className="relative flex-none whitespace-break-spaces max-w-full prose preserve-lines">
                     {content}
                   </div>
 
@@ -669,7 +740,7 @@ export const HumanMessage = ({
               )}
             </div>
           </div>
-          <div className="flex flex-col md:flex-row gap-x-0.5 ml-12 mt-1">
+          <div className="flex flex-col md:flex-row gap-x-0.5 ml-12">
             {currentMessageInd !== undefined &&
               onMessageSelection &&
               otherMessagesCanSwitchTo &&

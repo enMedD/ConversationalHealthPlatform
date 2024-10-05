@@ -1,3 +1,5 @@
+from sqlite3 import IntegrityError
+
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
@@ -6,6 +8,7 @@ from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import AnalyticsScriptUpload
+from ee.enmedd.server.workspace.models import WorkspaceCreate
 from ee.enmedd.server.workspace.models import Workspaces
 from ee.enmedd.server.workspace.store import _LOGO_FILENAME
 from ee.enmedd.server.workspace.store import load_analytics_script
@@ -14,8 +17,8 @@ from ee.enmedd.server.workspace.store import upload_logo
 from enmedd.auth.users import current_admin_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
-from enmedd.db.workspace import get_workspace_by_id
 from enmedd.db.workspace import get_workspace_settings
+from enmedd.db.workspace import insert_workspace
 from enmedd.db.workspace import upsert_workspace
 from enmedd.file_store.file_store import get_default_file_store
 
@@ -23,6 +26,23 @@ from enmedd.file_store.file_store import get_default_file_store
 
 admin_router = APIRouter(prefix="/admin/workspace")
 basic_router = APIRouter(prefix="/workspace")
+
+
+@admin_router.post("")
+def create_workspace(
+    workspace: WorkspaceCreate,
+    user: User = Depends(current_admin_user),
+    db_session: Session = Depends(get_session),
+) -> Workspaces:
+    try:
+        # Insert the workspace and its instance
+        db_workspace = insert_workspace(db_session, workspace, user_id=user.id)
+    except IntegrityError:
+        raise HTTPException(
+            400,
+            f"Workspace with name '{workspace.workspace_name}' already exists. Please choose a different name.",
+        )
+    return Workspaces.from_model(db_workspace)
 
 
 # @admin_router.put("/{workspace_id}")
@@ -85,20 +105,20 @@ def put_settings(
     )
 
 
-@basic_router.get("/{workspace_id}")
-def fetch_settings_by_id(
-    workspace_id: int,
-    _: User = Depends(current_admin_user),
-    db_session: Session = Depends(get_session),
-) -> Workspaces:
-    db_workspace = get_workspace_by_id(
-        workspace_id=workspace_id, db_session=db_session, user=_
-    )
-    if db_workspace is None:
-        raise HTTPException(
-            status_code=404, detail=f"Workspace with id '{workspace_id}' not found"
-        )
-    return Workspaces.from_model(db_workspace)
+# @basic_router.get("/{workspace_id}")
+# def fetch_settings_by_id(
+#     workspace_id: int,
+#     _: User = Depends(current_admin_user),
+#     db_session: Session = Depends(get_session),
+# ) -> Workspaces:
+#     db_workspace = get_workspace_for_user_by_id(
+#         workspace_id=workspace_id, db_session=db_session, user=_
+#     )
+#     if db_workspace is None:
+#         raise HTTPException(
+#             status_code=404, detail=f"Workspace with id '{workspace_id}' not found"
+#         )
+#     return Workspaces.from_model(db_workspace)
 
 
 @basic_router.get("")

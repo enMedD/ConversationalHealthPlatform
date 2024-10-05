@@ -1,26 +1,27 @@
-import { UserSettingsButton } from "@/components/UserSettingsButton";
-import { Ellipsis } from "lucide-react";
-import Image from "next/image";
+"use client";
 
-import ArnoldAi from "../../../../public/arnold_ai.png";
+import { UserSettingsButton } from "@/components/UserSettingsButton";
+import ArnoldAi from "../../../public/arnold_ai.png";
 import { Separator } from "@/components/ui/separator";
 import { User } from "@/lib/types";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { Logo } from "@/components/Logo";
 import { useContext } from "react";
 import { SettingsContext } from "@/components/settings/SettingsProvider";
-import { fetchSettingsSS } from "@/components/settings/lib";
 import Link from "next/link";
+import { useTeamspaces } from "@/lib/hooks";
+import { TeamspaceBubble } from "@/components/TeamspaceBubble";
+import Image from "next/image";
+import { TeamspaceModal } from "./TeamspaceModal";
 
-interface WorkSpaceSidebarProps {
+interface GlobalSidebarProps {
   openSidebar?: boolean;
   user?: User | null;
 }
 
-export const WorkSpaceSidebar = ({
-  openSidebar,
-  user,
-}: WorkSpaceSidebarProps) => {
+export const GlobalSidebar = ({ openSidebar, user }: GlobalSidebarProps) => {
+  const { data } = useTeamspaces();
+
   const combinedSettings = useContext(SettingsContext);
   if (!combinedSettings) {
     return null;
@@ -29,6 +30,9 @@ export const WorkSpaceSidebar = ({
   const workspaces = combinedSettings.workspaces;
   const defaultPage = settings.default_page;
 
+  const displayedTeamspaces = data?.slice(0, 8);
+  const showEllipsis = data && data.length > 8;
+
   return (
     <div className={`bg-background h-full p-4 border-r border-border z-10`}>
       <div
@@ -36,7 +40,7 @@ export const WorkSpaceSidebar = ({
           openSidebar ? "opacity-100 delay-200" : "opacity-0 delay-100"
         }`}
       >
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center h-full">
           <Image
             src={ArnoldAi}
             alt="ArnoldAi Logo"
@@ -44,7 +48,7 @@ export const WorkSpaceSidebar = ({
             height={40}
             className="rounded-regular shrink-0"
           />
-          <Separator className="mt-6" />
+          <Separator className="mt-4" />
           <div className="flex flex-col items-center gap-4 pt-4">
             <CustomTooltip
               trigger={
@@ -54,12 +58,26 @@ export const WorkSpaceSidebar = ({
               }
               side="right"
               delayDuration={0}
+              asChild
             >
-              {workspaces!.workspace_name
-                ? workspaces!.workspace_name
+              {workspaces?.workspace_name
+                ? workspaces.workspace_name
                 : "Vanguard AI"}
             </CustomTooltip>
           </div>
+          <Separator className="mt-4" />
+          {data && (
+            <div className="flex flex-col gap-3 pt-4">
+              {displayedTeamspaces?.map((teamspace) => (
+                <TeamspaceBubble
+                  key={teamspace.id}
+                  teamspace={teamspace}
+                  link={defaultPage}
+                />
+              ))}
+              {showEllipsis && <TeamspaceModal teamspace={data} />}
+            </div>
+          )}
         </div>
         <div className="flex flex-col items-center gap-4">
           <UserSettingsButton user={user} defaultPage={defaultPage} />

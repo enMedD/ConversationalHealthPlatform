@@ -1,22 +1,23 @@
 import { AdminPageTitle } from "@/components/admin/Title";
-import { FiSettings } from "react-icons/fi";
 import { SettingsForm } from "./SettingsForm";
-import { Text } from "@tremor/react";
+import { Settings } from "lucide-react";
 
 export default async function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle
-        title="Workspace Settings"
-        icon={<FiSettings size={32} className="my-auto" />}
-      />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle
+          title="Workspace Settings"
+          icon={<Settings size={32} className="my-auto" />}
+        />
 
-      <p className="mb-8">
-        Manage general Vanguard AI settings applicable to all users in the
-        workspace.
-      </p>
+        <p className="mb-8">
+          Manage general Vanguard AI settings applicable to all users in the
+          workspace.
+        </p>
 
-      <SettingsForm />
+        <SettingsForm />
+      </div>
     </div>
   );
 }

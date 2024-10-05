@@ -19,11 +19,12 @@ import { adminDeleteCredential, linkCredential } from "@/lib/credential";
 import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
 import { usePublicCredentials } from "@/lib/hooks";
-import { Divider, Text, Title, Button } from "@tremor/react";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
+import { Divider } from "@/components/Divider";
+import { Button } from "@/components/ui/button";
 
 const extractSpaceFromCloudUrl = (wikiUrl: string): string => {
   const parsedUrl = new URL(wikiUrl);
@@ -129,13 +130,12 @@ const Main = () => {
               {confluenceCredential.credential_json?.confluence_access_token}
             </p>
             <Button
-              className="p-1 ml-1 rounded hover:bg-hover"
               onClick={async () => {
                 if (confluenceConnectorIndexingStatuses.length > 0) {
                   toast({
-                    title: "Error",
+                    title: "Cannot Delete Credentials",
                     description:
-                      "Must delete all connectors before deleting credentials",
+                      "Please delete all connectors associated with these credentials before proceeding.",
                     variant: "destructive",
                   });
                   return;
@@ -143,7 +143,7 @@ const Main = () => {
                 await adminDeleteCredential(confluenceCredential.id);
                 refreshCredentials();
               }}
-              variant="light"
+              variant="destructive"
             >
               <TrashIcon />
             </Button>
@@ -324,12 +324,17 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle icon={<ConfluenceIcon size={32} />} title="Confluence" />
+        <AdminPageTitle
+          icon={<ConfluenceIcon size={32} />}
+          title="Confluence"
+        />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

@@ -3,8 +3,8 @@
 import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { User } from "@/lib/types";
-import TopBar from "@/components/TopBar";
 import { DynamicSidebar } from "@/components/DynamicSidebar";
+import { TopBar } from "../TopBar";
 
 export function AdminBar({
   children,
@@ -30,7 +30,6 @@ export function AdminBar({
       <DynamicSidebar
         user={user}
         openSidebar={openSidebar}
-        isSearch
         toggleLeftSideBar={toggleLeftSideBar}
       >
         {children}

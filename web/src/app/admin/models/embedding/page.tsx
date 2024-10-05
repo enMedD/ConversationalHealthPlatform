@@ -3,8 +3,6 @@
 import { ThreeDotsLoader } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { errorHandlingFetcher } from "@/lib/fetcher";
-import { Text, Title } from "@tremor/react";
-import { FiPackage } from "react-icons/fi";
 import useSWR, { mutate } from "swr";
 import { ModelOption, ModelSelector } from "./ModelSelector";
 import { useState } from "react";
@@ -24,6 +22,8 @@ import Link from "next/link";
 import { CustomModelForm } from "./CustomModelForm";
 import { Card, CardContent } from "@/components/ui/card";
 import { CustomModal } from "@/components/CustomModal";
+import { Package } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 function Main() {
   const [tentativeNewEmbeddingModel, setTentativeNewEmbeddingModel] =
@@ -31,6 +31,7 @@ function Main() {
   const [isCancelling, setIsCancelling] = useState<boolean>(false);
   const [showAddConnectorPopup, setShowAddConnectorPopup] =
     useState<boolean>(false);
+  const { toast } = useToast();
 
   const {
     data: currentEmeddingModel,
@@ -86,11 +87,21 @@ function Main() {
     if (response.ok) {
       setTentativeNewEmbeddingModel(null);
       mutate("/api/secondary-index/get-secondary-embedding-model");
+
+      toast({
+        title: "Embedding model updated",
+        description: "The embedding model has been successfully updated.",
+        variant: "success",
+      });
       if (!connectors || !connectors.length) {
         setShowAddConnectorPopup(true);
       }
     } else {
-      alert(`Failed to update embedding model - ${await response.text()}`);
+      toast({
+        title: "Failed to update embedding model",
+        description: `Error details: ${await response.text()}`,
+        variant: "destructive",
+      });
     }
   };
 
@@ -101,10 +112,19 @@ function Main() {
     if (response.ok) {
       setTentativeNewEmbeddingModel(null);
       mutate("/api/secondary-index/get-secondary-embedding-model");
+
+      toast({
+        title: "Embedding model update cancelled",
+        description:
+          "The embedding model update has been successfully cancelled.",
+        variant: "success",
+      });
     } else {
-      alert(
-        `Failed to cancel embedding model update - ${await response.text()}`
-      );
+      toast({
+        title: "Failed to cancel embedding model update",
+        description: `Error details: ${await response.text()}`,
+        variant: "destructive",
+      });
     }
 
     setIsCancelling(false);
@@ -333,13 +353,15 @@ function Main() {
 
 function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle
-        title="Embedding"
-        icon={<FiPackage size={32} className="my-auto" />}
-      />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle
+          title="Embedding"
+          icon={<Package size={32} className="my-auto" />}
+        />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

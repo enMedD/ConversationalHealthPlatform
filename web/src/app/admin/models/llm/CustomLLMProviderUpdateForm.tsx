@@ -9,7 +9,6 @@ import {
   Form,
   Formik,
 } from "formik";
-import { FiX } from "react-icons/fi";
 import { LLM_PROVIDERS_ADMIN_URL } from "./constants";
 import {
   SubLabel,
@@ -23,7 +22,7 @@ import { PopupSpec } from "@/components/admin/connectors/Popup";
 import * as Yup from "yup";
 import isEqual from "lodash/isEqual";
 import { Button } from "@/components/ui/button";
-import { Plus, X } from "lucide-react";
+import { Plus, Trash, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -91,7 +90,7 @@ export function CustomLLMProviderUpdateForm({
         if (values.model_names.length === 0) {
           const fullErrorMsg = "At least one model name is required";
           toast({
-            title: "Error",
+            title: "Model Name Required",
             description: fullErrorMsg,
             variant: "destructive",
           });
@@ -136,10 +135,11 @@ export function CustomLLMProviderUpdateForm({
         if (!response.ok) {
           const errorMsg = (await response.json()).detail;
           const fullErrorMsg = existingLlmProvider
-            ? `Failed to update provider: ${errorMsg}`
-            : `Failed to enable provider: ${errorMsg}`;
+            ? `Error updating provider: ${errorMsg}`
+            : `Error enabling provider: ${errorMsg}`;
+
           toast({
-            title: "Error",
+            title: "Operation Failed",
             description: fullErrorMsg,
             variant: "destructive",
           });
@@ -156,9 +156,9 @@ export function CustomLLMProviderUpdateForm({
           );
           if (!setDefaultResponse.ok) {
             const errorMsg = (await setDefaultResponse.json()).detail;
-            const fullErrorMsg = `Failed to set provider as default: ${errorMsg}`;
+            const fullErrorMsg = `Could not set "${newLlmProvider.name}" as the default provider: ${errorMsg}`;
             toast({
-              title: "Error",
+              title: "Default Provider Update Failed",
               description: fullErrorMsg,
               variant: "destructive",
             });
@@ -173,7 +173,7 @@ export function CustomLLMProviderUpdateForm({
           ? "Provider updated successfully!"
           : "Provider enabled successfully!";
         toast({
-          title: "Success",
+          title: "Operation Successful",
           description: successMsg,
           variant: "success",
         });
@@ -409,15 +409,26 @@ export function CustomLLMProviderUpdateForm({
                     );
                     if (!response.ok) {
                       const errorMsg = (await response.json()).detail;
-                      alert(`Failed to delete provider: ${errorMsg}`);
+                      toast({
+                        title: "Failed to delete provider",
+                        description: `Error details: ${errorMsg}`,
+                        variant: "destructive",
+                      });
                       return;
                     }
 
                     mutate(LLM_PROVIDERS_ADMIN_URL);
                     onClose();
+
+                    toast({
+                      title: "Provider deleted",
+                      description:
+                        "The provider has been successfully deleted.",
+                      variant: "success",
+                    });
                   }}
                 >
-                  <Plus size={16} /> Delete
+                  <Trash size={16} /> Delete
                 </Button>
               )}
             </div>

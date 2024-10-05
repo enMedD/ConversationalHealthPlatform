@@ -1,11 +1,6 @@
 import React from "react";
 import { DocumentSet, Tag, ValidSources } from "@/lib/types";
 import { SourceMetadata } from "@/lib/search/interfaces";
-import { InfoIcon, defaultTailwindCSS } from "../../icons/icons";
-import { HoverPopup } from "../../HoverPopup";
-import { FiBook, FiBookmark, FiMap, FiX } from "react-icons/fi";
-import { DateRangePickerValue } from "@tremor/react";
-import { FilterDropdown } from "./FilterDropdown";
 import { listSourceMetadata } from "@/lib/sources";
 import { SourceIcon } from "@/components/SourceIcon";
 import { TagFilter } from "./TagFilter";
@@ -16,11 +11,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CustomSelect } from "@/components/Select";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Brain } from "lucide-react";
+import { Book, Bookmark, Brain, Map, X } from "lucide-react";
 import { CustomTooltip } from "@/components/CustomTooltip";
-import { SortSearch } from "../SortSearch";
 import { DateRangeSearchSelector } from "../DateRangeSearchSelector";
 import { Button } from "@/components/ui/button";
 
@@ -28,11 +21,15 @@ const SectionTitle = ({ children }: { children: string }) => (
   <div className="flex px-2 py-3 text-sm font-bold">{children}</div>
 );
 
+import { DateRange as BaseDateRange } from "react-day-picker";
+
+interface CustomDateRange extends BaseDateRange {
+  selectValue?: string;
+}
+
 export interface SourceSelectorProps {
-  timeRange: DateRangePickerValue | null;
-  setTimeRange: React.Dispatch<
-    React.SetStateAction<DateRangePickerValue | null>
-  >;
+  timeRange: CustomDateRange | null;
+  setTimeRange: React.Dispatch<React.SetStateAction<CustomDateRange | null>>;
   selectedSources: SourceMetadata[];
   setSelectedSources: React.Dispatch<React.SetStateAction<SourceMetadata[]>>;
   selectedDocumentSets: string[];
@@ -110,14 +107,14 @@ export function SourceSelector({
               .map((source, index, array) => (
                 <div
                   key={source.internalName}
-                  className={`w-full flex items-center justify-between cursor-pointer px-2 py-3 gap-2 ${
+                  className={`w-full flex items-center justify-between cursor-pointer gap-2 ${
                     index === 0 ? "lg:border-t" : ""
                   } ${index !== array.length - 1 ? "lg:border-b" : ""}`}
                   onClick={() => handleSelect(source)}
                 >
                   <label
                     htmlFor={source.internalName}
-                    className="flex items-center w-full"
+                    className="flex items-center w-full px-2 py-3"
                   >
                     <SourceIcon
                       sourceType={source.internalName}
@@ -136,33 +133,35 @@ export function SourceSelector({
         <div className="lg:border rounded-[8px] w-full px-2.5">
           <SectionTitle>Knowledge Sets</SectionTitle>
           <div>
-            {availableDocumentSets.map((documentSet) => (
-              <div
-                key={documentSet.name}
-                className={`w-full flex items-center justify-between cursor-pointer px-2 py-3 gap-2 border-t`}
-              >
-                <label
-                  htmlFor={documentSet.name}
-                  className="flex items-center w-full"
-                  onClick={() => handleDocumentSetSelect(documentSet.name)}
+            {availableDocumentSets
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((documentSet) => (
+                <div
+                  key={documentSet.name}
+                  className="w-full flex items-center justify-between cursor-pointer gap-2 border-t"
                 >
-                  <CustomTooltip
-                    trigger={
-                      <div className="flex my-auto mr-3">
-                        <Brain size={18} />
-                      </div>
-                    }
+                  <label
+                    htmlFor={documentSet.name}
+                    className="flex items-center w-full px-2 py-3"
+                    onClick={() => handleDocumentSetSelect(documentSet.name)}
                   >
-                    <div className="text-sm">
-                      <div className="flex font-medium">Description</div>
-                      <div className="mt-1">{documentSet.description}</div>
-                    </div>
-                  </CustomTooltip>
-                  <span className="text-sm">{documentSet.name}</span>
-                </label>
-                <Checkbox id={documentSet.name} />
-              </div>
-            ))}
+                    <CustomTooltip
+                      trigger={
+                        <div className="flex my-auto mr-3">
+                          <Brain size={18} />
+                        </div>
+                      }
+                    >
+                      <div className="text-sm">
+                        <div className="flex font-medium">Description</div>
+                        <div className="mt-1">{documentSet.description}</div>
+                      </div>
+                    </CustomTooltip>
+                    <span className="text-sm">{documentSet.name}</span>
+                  </label>
+                  <Checkbox id={documentSet.name} />
+                </div>
+              ))}
           </div>
         </div>
       )}
@@ -196,7 +195,7 @@ function SelectedBubble({
       onClick={onClick}
     >
       {children}
-      <FiX className="ml-2" size={14} />
+      <X className="ml-2" size={14} />
     </div>
   );
 }
@@ -256,7 +255,7 @@ export function HorizontalFilters({
         >
           <SelectTrigger className="w-full lg:w-64">
             <div className="flex items-center gap-3">
-              <FiMap size={16} />
+              <Map size={16} />
               <SelectValue placeholder="All Sources" />
             </div>
           </SelectTrigger>
@@ -278,7 +277,7 @@ export function HorizontalFilters({
         >
           <SelectTrigger className="w-full lg:w-64">
             <div className="flex items-center gap-3">
-              <FiBook size={16} />
+              <Book size={16} />
               <SelectValue placeholder="All Document Sets" />
             </div>
           </SelectTrigger>
@@ -286,7 +285,7 @@ export function HorizontalFilters({
             {availableDocumentSets.map((documentSet) => (
               <SelectItem key={documentSet.name} value={documentSet.name}>
                 <div className="flex items-center gap-2">
-                  <FiBookmark /> {documentSet.name}
+                  <Bookmark /> {documentSet.name}
                 </div>
               </SelectItem>
             ))}
@@ -321,7 +320,7 @@ export function HorizontalFilters({
               >
                 <>
                   <div>
-                    <FiBookmark />
+                    <Bookmark />
                   </div>
                   <span className="ml-2 text-sm">{documentSetName}</span>
                 </>

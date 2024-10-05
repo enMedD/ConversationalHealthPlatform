@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Modal } from "@/components/Modal";
 import { MinimalUserSnapshot, User } from "@/lib/types";
 import { Button, Text } from "@tremor/react";
-import { FiPlus, FiX } from "react-icons/fi";
 import { Assistant } from "@/app/admin/assistants/interfaces";
 import { SearchMultiSelectDropdown } from "@/components/Dropdown";
 import { UsersIcon } from "@/components/icons/icons";
@@ -16,6 +15,7 @@ import { useRouter } from "next/navigation";
 import { AssistantIcon } from "@/components/assistants/AssistantIcon";
 import { Spinner } from "@/components/Spinner";
 import { useToast } from "@/hooks/use-toast";
+import { Plus, X } from "lucide-react";
 
 interface AssistantSharingModalProps {
   assistant: Assistant;
@@ -63,9 +63,15 @@ export function AssistantSharingModal({
       setIsUpdating(false);
       if (error) {
         toast({
-          title: "Error",
-          description: `Failed to share assistant - ${error}`,
+          title: "Sharing Failed",
+          description: `We encountered an issue while trying to share "${assistant.name}". Please try again later.`,
           variant: "destructive",
+        });
+      } else {
+        toast({
+          title: "Assistant Shared",
+          description: `"${assistant.name}" has been successfully shared with the selected users!`,
+          variant: "success",
         });
       }
     }, remainingTime);
@@ -102,16 +108,22 @@ export function AssistantSharingModal({
                   setIsUpdating(false);
                   if (error) {
                     toast({
-                      title: "Error",
-                      description: `Failed to remove assistant - ${error}`,
+                      title: "Removal Failed",
+                      description: `Unable to remove "${u.email}" from the assistant's shared list. Please try again later.`,
                       variant: "destructive",
+                    });
+                  } else {
+                    toast({
+                      title: "User Removed",
+                      description: `"${u.email}" has been successfully removed from the assistant's shared list.`,
+                      variant: "success",
                     });
                   }
                 }, remainingTime);
               }}
             >
               <div className="flex">
-                {u.email} <FiX className="ml-1 my-auto" />
+                {u.email} <X className="ml-1 my-auto" />
               </div>
             </Bubble>
           ))}
@@ -172,7 +184,7 @@ export function AssistantSharingModal({
                 <UsersIcon className="mr-2 my-auto" />
                 {option.name}
                 <div className="ml-auto my-auto">
-                  <FiPlus />
+                  <Plus />
                 </div>
               </div>
             )}
@@ -199,7 +211,7 @@ export function AssistantSharingModal({
                       hover:bg-hover-light 
                       cursor-pointer`}
                 >
-                  {selectedUser.email} <FiX className="ml-1 my-auto" />
+                  {selectedUser.email} <X className="ml-1 my-auto" />
                 </div>
               ))}
           </div>

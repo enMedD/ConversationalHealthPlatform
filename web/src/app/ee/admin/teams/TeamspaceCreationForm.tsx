@@ -1,19 +1,23 @@
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
-import { PopupSpec } from "@/components/admin/connectors/Popup";
-import { ConnectorIndexingStatus, User, Teamspace } from "@/lib/types";
+import {
+  ConnectorIndexingStatus,
+  User,
+  Teamspace,
+  DocumentSet,
+} from "@/lib/types";
 import { TextFormField } from "@/components/admin/connectors/Field";
 import { createTeamspace } from "./lib";
 import { UserEditor } from "./UserEditor";
 import { ConnectorEditor } from "./ConnectorEditor";
-import { Modal } from "@/components/Modal";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { useDocumentSets } from "@/app/admin/documents/sets/hooks";
-import { orderAssistantsForUser } from "@/lib/assistants/orderAssistants";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { Badge } from "@/components/ui/badge";
+import { FileUpload } from "@/components/admin/connectors/FileUpload";
+import { useState } from "react";
+import { DocumentSets } from "./DocumentSets";
 import { Assistants } from "./Assistants";
+import { Input } from "@/components/ui/input";
 
 interface TeamspaceCreationFormProps {
   onClose: () => void;
@@ -21,6 +25,7 @@ interface TeamspaceCreationFormProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
   existingTeamspace?: Teamspace;
   assistants: Assistant[];
+  documentSets: DocumentSet[] | undefined;
 }
 
 export const TeamspaceCreationForm = ({
@@ -29,16 +34,11 @@ export const TeamspaceCreationForm = ({
   ccPairs,
   existingTeamspace,
   assistants,
+  documentSets,
 }: TeamspaceCreationFormProps) => {
+  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const isUpdate = existingTeamspace !== undefined;
   const { toast } = useToast();
-
-  const {
-    data: documentSets,
-    isLoading: isDocumentSetsLoading,
-    error: documentSetsError,
-    refreshDocumentSets,
-  } = useDocumentSets();
 
   return (
     <div>
@@ -47,34 +47,42 @@ export const TeamspaceCreationForm = ({
           name: existingTeamspace ? existingTeamspace.name : "",
           user_ids: [] as string[],
           cc_pair_ids: [] as number[],
+          document_set_ids: [] as number[],
+          assistant_ids: [] as string[],
         }}
         validationSchema={Yup.object().shape({
           name: Yup.string().required("Please enter a name for the group"),
           user_ids: Yup.array().of(Yup.string().required()),
           cc_pair_ids: Yup.array().of(Yup.number().required()),
+          document_set_ids: Yup.array().of(Yup.number().required()),
+          assistant_ids: Yup.array().of(Yup.number().required()),
         })}
         onSubmit={async (values, formikHelpers) => {
           formikHelpers.setSubmitting(true);
+
+          console.log("Submitted values:", values);
+
           let response;
           response = await createTeamspace(values);
           formikHelpers.setSubmitting(false);
           if (response.ok) {
             toast({
-              title: "Success",
+              title: isUpdate ? "Teamspace Updated!" : "Teamspace Created!",
               description: isUpdate
-                ? "Successfully updated teamspace!"
-                : "Successfully created teamspace!",
+                ? "Your teamspace has been updated successfully."
+                : "Your new teamspace has been created successfully.",
               variant: "success",
             });
+
             onClose();
           } else {
             const responseJson = await response.json();
             const errorMsg = responseJson.detail || responseJson.message;
             toast({
-              title: "Error",
+              title: "Operation Failed",
               description: isUpdate
-                ? `Error updating teamspace - ${errorMsg}`
-                : `Error creating teamspace - ${errorMsg}`,
+                ? `Could not update the teamspace: ${errorMsg}`
+                : `Could not create the teamspace: ${errorMsg}`,
               variant: "destructive",
             });
           }
@@ -82,40 +90,37 @@ export const TeamspaceCreationForm = ({
       >
         {({ isSubmitting, values, setFieldValue }) => (
           <Form>
-            <div className="py-4">
-              <TextFormField
-                name="name"
-                label="Name:"
-                placeholder="A name for the Teamspace"
-                disabled={isUpdate}
-                autoCompleteDisabled={true}
-              />
-              <div className="pb-4 pt-1">
-                <h3 className="text-sm pb-1">
-                  Select which connectors this group has access to:
-                </h3>
-                <p className="text-xs pb-2">
-                  All documents indexed by the selected connectors will be
-                  visible to users in this group.
+            <div className="pt-8 space-y-6">
+              <div className="flex justify-between gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
+                  Teamspace Name
                 </p>
-
-                <ConnectorEditor
-                  allCCPairs={ccPairs}
-                  selectedCCPairIds={values.cc_pair_ids}
-                  setSetCCPairIds={(ccPairsIds) =>
-                    setFieldValue("cc_pair_ids", ccPairsIds)
-                  }
+                <TextFormField
+                  name="name"
+                  placeholder="A name for the Teamspace"
+                  disabled={isUpdate}
+                  autoCompleteDisabled={true}
+                  fullWidth
                 />
               </div>
-              <div className="pb-4 pt-1">
-                <h3 className="text-sm pb-1">
-                  Select which Users should be a part of this Group.
-                </h3>
-                <p className="text-xs">
-                  All selected users will be able to search through all
-                  documents indexed by the selected connectors.
+
+              <div className="flex justify-between gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
+                  Teamspace Logo
                 </p>
-                <div>
+                <div className="flex items-center gap-2 w-full">
+                  <FileUpload
+                    selectedFiles={selectedFiles}
+                    setSelectedFiles={setSelectedFiles}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
+                  Select Users
+                </p>
+                <div className="w-full">
                   <UserEditor
                     selectedUserIds={values.user_ids}
                     setSelectedUserIds={(userIds) =>
@@ -127,13 +132,70 @@ export const TeamspaceCreationForm = ({
                 </div>
               </div>
 
-              <div className="flex pt-4">
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
+                  Select assistants
+                </p>
+                <div className="w-full">
+                  <Assistants
+                    assistants={assistants}
+                    onSelect={(selectedAssistantIds) => {
+                      setFieldValue("assistant_ids", selectedAssistantIds);
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
+                  Select document sets
+                </p>
+                <div className="w-full">
+                  <DocumentSets
+                    documentSets={documentSets}
+                    setSelectedDocumentSetIds={(documentSetIds) =>
+                      setFieldValue("document_set_ids", documentSetIds)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
+                  Select connectors
+                </p>
+                <div className="w-full">
+                  <ConnectorEditor
+                    allCCPairs={ccPairs}
+                    selectedCCPairIds={values.cc_pair_ids}
+                    setSetCCPairIds={(ccPairsIds) =>
+                      setFieldValue("cc_pair_ids", ccPairsIds)
+                    }
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-between pb-4 gap-2 flex-col lg:flex-row">
+                <p className="whitespace-nowrap w-1/2 font-semibold">
+                  Set Token Rate Limit
+                </p>
+                <div className="flex items-center gap-4 w-full">
+                  <Input placeholder="Time Window (Hours)" type="number" />
+                  <Input placeholder="Token Budget (Thousands)" type="number" />
+                </div>
+              </div>
+
+              <div className="flex gap-2 pt-4 justify-end">
                 <Button
-                  type="submit"
                   disabled={isSubmitting}
-                  className="mx-auto w-64"
+                  className=""
+                  onClick={onClose}
+                  variant="ghost"
                 >
-                  {isUpdate ? "Update!" : "Create!"}
+                  Cancel
+                </Button>
+                <Button type="submit" disabled={isSubmitting} className="">
+                  {isUpdate ? "Update" : "Create"}
                 </Button>
               </div>
             </div>

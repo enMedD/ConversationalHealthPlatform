@@ -1,6 +1,5 @@
 import { AssistantsTable } from "./AssistantTable";
 import Link from "next/link";
-import { Divider, Text, Title } from "@tremor/react";
 import { fetchSS } from "@/lib/utilsSS";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import { Assistant } from "./interfaces";
@@ -24,25 +23,23 @@ export default async function Page() {
   const assistants = (await assistantResponse.json()) as Assistant[];
 
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle icon={<RobotIcon size={32} />} title="Assistants" />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle icon={<RobotIcon size={32} />} title="Assistants" />
 
-      <p className="mb-2">
-        Assistants are a way to build custom search/question-answering
-        experiences for different use cases.
-      </p>
-      <p className="mt-2">They allow you to customize:</p>
-      <ul className="list-disc mt-2 ml-4 text-sm">
-        <li>
-          The prompt used by your LLM of choice to respond to the user query
-        </li>
-        <li>The documents that are used as context</li>
-      </ul>
+        <p className="mb-2">
+          Assistants are a way to build custom search/question-answering
+          experiences for different use cases.
+        </p>
+        <h3 className="mt-2">They allow you to customize:</h3>
+        <ul className="list-disc mt-2 ml-4 text-sm">
+          <li>
+            The prompt used by your LLM of choice to respond to the user query
+          </li>
+          <li>The documents that are used as context</li>
+        </ul>
 
-      <div>
-        <Divider />
-
-        <h3>Create an Assistant</h3>
+        <h3 className="pt-4">Create an Assistant</h3>
         <Link href="/admin/assistants/new" className="flex items-center">
           <Button className="mt-2">
             <SquarePlus size={16} />
@@ -50,9 +47,7 @@ export default async function Page() {
           </Button>
         </Link>
 
-        <Divider />
-
-        <h3>Existing Assistants</h3>
+        <h3 className="pt-6">Existing Assistants</h3>
         <AssistantsTable assistants={assistants} />
       </div>
     </div>

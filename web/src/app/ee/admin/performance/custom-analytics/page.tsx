@@ -1,8 +1,8 @@
 import { AdminPageTitle } from "@/components/admin/Title";
 import { CUSTOM_ANALYTICS_ENABLED } from "@/lib/constants";
 import { Callout, Text } from "@tremor/react";
-import { FiBarChart2 } from "react-icons/fi";
 import { CustomAnalyticsUpdateForm } from "./CustomAnalyticsUpdateForm";
+import { BarChart2 } from "lucide-react";
 
 function Main() {
   if (!CUSTOM_ANALYTICS_ENABLED) {
@@ -34,13 +34,15 @@ function Main() {
 
 export default function Page() {
   return (
-    <main className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle
-        title="Custom Analytics"
-        icon={<FiBarChart2 size={32} />}
-      />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle
+          title="Custom Analytics"
+          icon={<BarChart2 size={32} />}
+        />
 
-      <Main />
-    </main>
+        <div />
+      </div>
+    </div>
   );
 }

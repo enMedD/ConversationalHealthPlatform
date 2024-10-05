@@ -12,9 +12,13 @@ from ee.enmedd.db.teamspace import update_teamspace
 from ee.enmedd.server.teamspace.models import Teamspace
 from ee.enmedd.server.teamspace.models import TeamspaceCreate
 from ee.enmedd.server.teamspace.models import TeamspaceUpdate
+from ee.enmedd.server.teamspace.models import TeamspaceUserRole
+from ee.enmedd.server.teamspace.models import UpdateUserRoleRequest
 from enmedd.auth.users import current_admin_user
 from enmedd.db.engine import get_session
 from enmedd.db.models import User
+from enmedd.db.models import User__Teamspace
+from enmedd.db.users import get_user_by_email
 
 router = APIRouter(prefix="/manage")
 
@@ -45,11 +49,13 @@ def list_teamspaces(
 @router.post("/admin/teamspace")
 def create_teamspace(
     teamspace: TeamspaceCreate,
-    _: User = Depends(current_admin_user),
+    current_user: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> Teamspace:
     try:
-        db_teamspace = insert_teamspace(db_session, teamspace)
+        db_teamspace = insert_teamspace(
+            db_session, teamspace, creator_id=current_user.id
+        )
     except IntegrityError:
         raise HTTPException(
             400,
@@ -84,3 +90,42 @@ def delete_teamspace(
         prepare_teamspace_for_deletion(db_session, teamspace_id)
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@router.patch("/admin/teamspace/user-role/{teamspace_id}")
+def update_teamspace_user_role(
+    teamspace_id: int,
+    body: UpdateUserRoleRequest,
+    user: User = Depends(current_admin_user),
+    db_session: Session = Depends(get_session),
+) -> None:
+    user_to_update = get_user_by_email(email=body.user_email, db_session=db_session)
+    if not user_to_update:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    if user_to_update.id == user.id and body.new_role != TeamspaceUserRole.ADMIN:
+        raise HTTPException(
+            status_code=400, detail="Cannot demote yourself from admin role!"
+        )
+
+    user_teamspace = (
+        db_session.query(User__Teamspace)
+        .filter(
+            User__Teamspace.user_id == user_to_update.id,
+            User__Teamspace.teamspace_id == teamspace_id,
+        )
+        .first()
+    )
+
+    if not user_teamspace:
+        raise HTTPException(
+            status_code=404, detail="User-Teamspace relationship not found"
+        )
+
+    user_teamspace.role = body.new_role
+
+    db_session.commit()
+
+    return {
+        "message": f"User role updated to {body.new_role.value} for {body.user_email}"
+    }

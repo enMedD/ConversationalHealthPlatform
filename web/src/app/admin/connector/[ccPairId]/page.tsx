@@ -102,11 +102,8 @@ function Main({ ccPairId }: { ccPairId: number }) {
           />
         )}
       </div>
-      <Card>
-        <CardContent className="p-0">
-          <IndexingAttemptsTable ccPair={ccPair} />
-        </CardContent>
-      </Card>
+
+      <IndexingAttemptsTable ccPair={ccPair} />
 
       <div className="mt-12">
         <h3>Delete Connector</h3>
@@ -129,8 +126,10 @@ export default function Page({ params }: { params: { ccPairId: string } }) {
   const ccPairId = parseInt(params.ccPairId);
 
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <Main ccPairId={ccPairId} />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <Main ccPairId={ccPairId} />
+      </div>
     </div>
   );
 }

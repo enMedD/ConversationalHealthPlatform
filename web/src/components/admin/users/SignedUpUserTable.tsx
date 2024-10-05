@@ -52,7 +52,7 @@ const PromoterButton = ({
   );
 };
 
-const DeactivaterButton = ({
+export const DeactivaterButton = ({
   user,
   deactivate,
   mutate,
@@ -71,15 +71,15 @@ const DeactivaterButton = ({
       onSuccess: () => {
         mutate();
         toast({
-          title: "Success",
-          description: `User ${deactivate ? "deactivated" : "activated"}!`,
+          title: "User Status Updated Successfully!",
+          description: `User has been ${deactivate ? "deactivated" : "activated"}.`,
           variant: "success",
         });
       },
       onError: (errorMsg) =>
         toast({
-          title: "Error",
-          description: errorMsg,
+          title: "Operation Failed",
+          description: `Unable to ${deactivate ? "deactivate" : "activate"} the user: ${errorMsg}. Please try again.`,
           variant: "destructive",
         }),
     }
@@ -108,14 +108,14 @@ const SignedUpUserTable = ({
   const onSuccess = (message: string) => {
     mutate();
     toast({
-      title: "Success",
+      title: "Operation Successful!",
       description: message,
       variant: "success",
     });
   };
   const onError = (message: string) => {
     toast({
-      title: "Error",
+      title: "Operation Failed",
       description: message,
       variant: "destructive",
     });
@@ -134,7 +134,7 @@ const SignedUpUserTable = ({
   };
 
   return (
-    <HidableSection sectionTitle="Current Users" defaultOpen>
+    <HidableSection sectionTitle="Current Users">
       <>
         {totalPages > 1 ? (
           <CenteredPageSelector

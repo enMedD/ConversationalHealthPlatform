@@ -104,9 +104,9 @@ const R2Main = () => {
               onClick={async () => {
                 if (r2ConnectorIndexingStatuses.length > 0) {
                   toast({
-                    title: "Error",
+                    title: "Cannot Delete Credentials",
                     description:
-                      "Must delete all connectors before deleting credentials",
+                      "Please delete all connectors associated with these credentials before proceeding.",
                     variant: "destructive",
                   });
                   return;
@@ -255,10 +255,12 @@ export default function Page() {
   const [selectedStorage, setSelectedStorage] = useState<string>("s3");
 
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <BackButton />
-      <AdminPageTitle icon={<R2Icon size={32} />} title="R2 Storage" />
-      <R2Main key={2} />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
+        <AdminPageTitle icon={<R2Icon size={32} />} title="R2 Storage" />
+        <R2Main key={2} />
+      </div>
     </div>
   );
 }

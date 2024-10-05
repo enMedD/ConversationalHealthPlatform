@@ -9,14 +9,14 @@ import {
   TextFormField,
 } from "@/components/admin/connectors/Field";
 import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
-import { Divider, Text } from "@tremor/react";
-import { FiUsers } from "react-icons/fi";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { Users } from "lucide-react";
+import { Divider } from "@/components/Divider";
 
 interface SetCreationPopupProps {
   ccPairs: ConnectorIndexingStatus<any, any>[];
@@ -90,20 +90,22 @@ export const DocumentSetCreationForm = ({
           formikHelpers.setSubmitting(false);
           if (response.ok) {
             toast({
-              title: isUpdate ? "Update Successful" : "Creation Successful",
+              title: isUpdate
+                ? "Document Set Updated"
+                : "New Document Set Created",
               description: isUpdate
-                ? "Successfully updated document set!"
-                : "Successfully created document set!",
+                ? "Your document set has been updated successfully."
+                : "Your new document set has been created successfully.",
               variant: "success",
             });
             onClose();
           } else {
             const errorMsg = await response.text();
             toast({
-              title: "Error",
+              title: "Action Failed",
               description: isUpdate
-                ? `Error updating document set - ${errorMsg}`
-                : `Error creating document set - ${errorMsg}`,
+                ? `Failed to update document set: ${errorMsg}`
+                : `Failed to create document set: ${errorMsg}`,
               variant: "destructive",
             });
           }
@@ -128,7 +130,7 @@ export const DocumentSetCreationForm = ({
             <Divider />
 
             <div>
-              <h3 className="mb-1">Pick your connectors:</h3>
+              <h3 className="mb-1 text-sm">Pick your connectors:</h3>
               <p className="mb-3 text-xs text-subtle">
                 All documents indexed by the selected connectors will be a part
                 of this document set.
@@ -162,7 +164,7 @@ export const DocumentSetCreationForm = ({
                             }
                           }}
                         >
-                          <div className="my-auto">
+                          <div className="my-auto truncate">
                             <ConnectorTitle
                               connector={ccPair.connector}
                               ccPairId={ccPair.cc_pair_id}
@@ -196,7 +198,7 @@ export const DocumentSetCreationForm = ({
                 />
 
                 <Divider />
-                <h2 className="mb-1 font-medium text-base">
+                <h2 className="mb-1 font-medium text-sm">
                   Teamspace with Access
                 </h2>
                 {!values.is_public ? (
@@ -227,10 +229,8 @@ export const DocumentSetCreationForm = ({
                                   }
                                 }}
                               >
-                                <div className="my-auto flex">
-                                  <FiUsers className="my-auto mr-2" />{" "}
-                                  {teamspace.name}
-                                </div>
+                                <Users className="my-auto mr-2" size={14} />
+                                {teamspace.name}
                               </Badge>
                             );
                           })}

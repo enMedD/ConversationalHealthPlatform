@@ -10,7 +10,6 @@ import {
 import * as Yup from "yup";
 import { FormBodyBuilder } from "./types";
 import { DefaultDropdown, StringOrNumberOption } from "@/components/Dropdown";
-import { FiX } from "react-icons/fi";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label as ShadcnLabel } from "@/components/ui/label";
@@ -61,9 +60,12 @@ export function TextFormField({
   isCode = false,
   fontSize,
   hideError,
+  fullWidth,
+  onFocus,
+  onBlur,
 }: {
   name: string;
-  label: string;
+  label?: string;
   subtext?: string | JSX.Element;
   placeholder?: string;
   onChange?: (
@@ -78,6 +80,13 @@ export function TextFormField({
   isCode?: boolean;
   fontSize?: "text-sm" | "text-base" | "text-lg";
   hideError?: boolean;
+  fullWidth?: boolean;
+  onFocus?: (
+    e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => void;
+  onBlur?: (
+    e: React.FocusEvent<HTMLTextAreaElement | HTMLInputElement>
+  ) => void;
 }) {
   let heightString = defaultHeight || "";
   if (isTextArea && !heightString) {
@@ -85,16 +94,20 @@ export function TextFormField({
   }
 
   return (
-    <div className="grid pb-4">
-      <div className="grid leading-none pb-2">
-        <ShadcnLabel
-          htmlFor={label}
-          className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed"
-        >
-          {label}
-        </ShadcnLabel>
-        {subtext && <p className="text-sm text-muted-foreground">{subtext}</p>}
-      </div>
+    <div className={`grid pb-4 ${fullWidth ? "w-full" : ""}`}>
+      {(label || subtext) && (
+        <div className="grid leading-none">
+          <ShadcnLabel
+            htmlFor={label}
+            className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed"
+          >
+            {label}
+          </ShadcnLabel>
+          {subtext && (
+            <p className="text-sm text-muted-foreground pb-1.5">{subtext}</p>
+          )}
+        </div>
+      )}
       <Field name={name}>
         {({ field }: FieldProps) => {
           const Component = isTextArea ? Textarea : Input;
@@ -108,6 +121,8 @@ export function TextFormField({
               placeholder={placeholder}
               autoComplete={autoCompleteDisabled ? "off" : undefined}
               {...(onChange ? { onChange } : {})}
+              onFocus={onFocus}
+              onBlur={onBlur}
               className={isTextArea ? "max-h-[1000px]" : ""}
             />
           );
@@ -307,7 +322,11 @@ export function SelectorFormField({
 
   return (
     <div className="pb-4">
-      {label && <ShadcnLabel>{label}</ShadcnLabel>}
+      {label && (
+        <ShadcnLabel className="text-sm font-semibold leading-none peer-disabled:cursor-not-allowed">
+          {label}
+        </ShadcnLabel>
+      )}
       {subtext && <SubLabel>{subtext}</SubLabel>}
 
       <div>

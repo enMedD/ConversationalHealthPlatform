@@ -149,12 +149,27 @@ class User(SQLAlchemyBaseUserTableUUID, Base):
     custom_tools: Mapped[list["Tool"]] = relationship("Tool", back_populates="user")
 
     workspace: Mapped[list["Workspace"]] = relationship(
-        "Workspace", secondary="workspace__users", back_populates="users"
+        "Workspace", secondary="workspace__users", back_populates="users", lazy="joined"
+    )
+
+    groups: Mapped[list["Teamspace"]] = relationship(
+        "Teamspace", secondary="user__teamspace", back_populates="users", lazy="joined"
     )
 
 
 class AccessToken(SQLAlchemyBaseAccessTokenTableUUID, Base):
     pass
+
+
+class TwofactorAuth(Base):
+    __tablename__ = "two_factor_auth"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), nullable=False)
+    code: Mapped[str] = mapped_column(String, unique=True)
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
 
 class ApiKey(Base):
@@ -293,6 +308,37 @@ class Workspace__Teamspace(Base):
     )
 
 
+class ChatSession__Teamspace(Base):
+    __tablename__ = "chat_session__teamspace"
+
+    chat_session_id: Mapped[int] = mapped_column(
+        ForeignKey("chat_session.id"), primary_key=True
+    )
+    teamspace_id: Mapped[int] = mapped_column(
+        ForeignKey("teamspace.id"), primary_key=True
+    )
+
+
+class ChatFolder__Teamspace(Base):
+    __tablename__ = "chat_folder__teamspace"
+
+    chat_folder_id: Mapped[int] = mapped_column(
+        ForeignKey("chat_folder.id"), primary_key=True
+    )
+    teamspace_id: Mapped[int] = mapped_column(
+        ForeignKey("teamspace.id"), primary_key=True
+    )
+
+
+class Tool__Teamspace(Base):
+    __tablename__ = "tool__teamspace"
+
+    tool_id: Mapped[int] = mapped_column(ForeignKey("tool.id"), primary_key=True)
+    teamspace_id: Mapped[int] = mapped_column(
+        ForeignKey("teamspace.id"), primary_key=True
+    )
+
+
 """
 Documents/Indexing Tables
 """
@@ -349,6 +395,11 @@ class ConnectorCredentialPair(Base):
         ),
         back_populates="connector_credential_pairs",
         overlaps="document_set",
+    )
+    groups: Mapped[list["Teamspace"]] = relationship(
+        "Teamspace",
+        secondary="teamspace__connector_credential_pair",
+        viewonly=True,
     )
 
 
@@ -739,6 +790,11 @@ class ChatSession(Base):
         "ChatMessage", back_populates="chat_session"
     )
     assistant: Mapped["Assistant"] = relationship("Assistant")
+    groups: Mapped[list["Teamspace"]] = relationship(
+        "Teamspace",
+        secondary=ChatSession__Teamspace.__table__,
+        viewonly=True,
+    )
 
 
 class ChatMessage(Base):
@@ -822,6 +878,11 @@ class ChatFolder(Base):
     user: Mapped[User] = relationship("User", back_populates="chat_folders")
     chat_sessions: Mapped[list["ChatSession"]] = relationship(
         "ChatSession", back_populates="folder"
+    )
+    groups: Mapped[list["Teamspace"]] = relationship(
+        "Teamspace",
+        secondary=ChatFolder__Teamspace.__table__,
+        viewonly=True,
     )
 
     def __lt__(self, other: Any) -> bool:
@@ -1010,6 +1071,11 @@ class Tool(Base):
         secondary=Assistant__Tool.__table__,
         back_populates="tools",
     )
+    groups: Mapped[list["Teamspace"]] = relationship(
+        "Teamspace",
+        secondary="tool__teamspace",
+        viewonly=True,
+    )
 
 
 class StarterMessage(TypedDict):
@@ -1181,6 +1247,10 @@ class User__Teamspace(Base):
     )
     user_id: Mapped[UUID] = mapped_column(ForeignKey("user.id"), primary_key=True)
 
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole, native_enum=False, default=UserRole.BASIC)
+    )
+
 
 class Teamspace__ConnectorCredentialPair(Base):
     __tablename__ = "teamspace__connector_credential_pair"
@@ -1216,6 +1286,11 @@ class Assistant__Teamspace(Base):
     teamspace_id: Mapped[int] = mapped_column(
         ForeignKey("teamspace.id"), primary_key=True
     )
+    is_current: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        primary_key=True,
+    )
 
 
 class DocumentSet__Teamspace(Base):
@@ -1226,6 +1301,11 @@ class DocumentSet__Teamspace(Base):
     )
     teamspace_id: Mapped[int] = mapped_column(
         ForeignKey("teamspace.id"), primary_key=True
+    )
+    is_current: Mapped[bool] = mapped_column(
+        Boolean,
+        default=True,
+        primary_key=True,
     )
 
 
@@ -1244,6 +1324,7 @@ class Teamspace(Base):
     users: Mapped[list[User]] = relationship(
         "User",
         secondary=User__Teamspace.__table__,
+        viewonly=True,
     )
     cc_pairs: Mapped[list[ConnectorCredentialPair]] = relationship(
         "ConnectorCredentialPair",
@@ -1263,13 +1344,35 @@ class Teamspace(Base):
     )
     document_sets: Mapped[list[DocumentSet]] = relationship(
         "DocumentSet",
-        secondary=DocumentSet__Teamspace.__table__,
+        secondary="document_set__teamspace",
         viewonly=True,
     )
 
     workspace: Mapped[list["Workspace"]] = relationship(
         "Workspace",
-        secondary=Workspace__Teamspace.__table__,
+        secondary="workspace__teamspace",
+        viewonly=True,
+    )
+
+    tool: Mapped[list[Tool]] = relationship(
+        "Tool",
+        secondary="tool__teamspace",
+        viewonly=True,
+    )
+    chat_sessions: Mapped[list[ChatSession]] = relationship(
+        "ChatSession",
+        secondary=ChatSession__Teamspace.__table__,
+        viewonly=True,
+    )
+    token_rate_limit: Mapped["TokenRateLimit"] = relationship(
+        "TokenRateLimit",
+        secondary="token_rate_limit__teamspace",
+        viewonly=True,
+    )
+    
+    chat_folders: Mapped[list[ChatFolder]] = relationship(
+        "ChatFolder",
+        secondary=ChatFolder__Teamspace.__table__,
         viewonly=True,
     )
 
@@ -1291,6 +1394,11 @@ class TokenRateLimit(Base):
     )
     created_at: Mapped[datetime.datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now()
+    )
+    groups: Mapped["Teamspace"] = relationship(
+        "Teamspace",
+        secondary="token_rate_limit__teamspace",
+        viewonly=True,
     )
 
 
@@ -1439,13 +1547,14 @@ class Workspace(Base):
     custom_header_content: Mapped[str | None] = mapped_column(Text, nullable=True)
 
     users: Mapped[list[User]] = relationship(
-        "User", secondary=Workspace__Users.__table__, back_populates="workspace"
+        "User", secondary=Workspace__Users.__table__, viewonly=True
     )
 
     groups: Mapped[list["Teamspace"]] = relationship(
         "Teamspace",
-        secondary=Workspace__Teamspace.__table__,
+        secondary="workspace__teamspace",
         back_populates="workspace",
+        viewonly=True,
     )
 
     instance: Mapped["Instance"] = relationship("Instance", back_populates="workspaces")

@@ -6,11 +6,8 @@ import { KeyIcon } from "@/components/icons/icons";
 import { errorHandlingFetcher } from "@/lib/fetcher";
 import { ErrorCallout } from "@/components/ErrorCallout";
 import useSWR, { mutate } from "swr";
-import { Divider } from "@tremor/react";
 import { useState } from "react";
 import { DeleteButton } from "@/components/DeleteButton";
-import { FiCopy, FiEdit2, FiRefreshCw, FiX } from "react-icons/fi";
-import { Modal } from "@/components/Modal";
 import { Spinner } from "@/components/Spinner";
 import { deleteApiKey, regenerateApiKey } from "./lib";
 import { Button } from "@/components/ui/button";
@@ -28,6 +25,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Check, Copy, Edit2, RefreshCw } from "lucide-react";
 import { CustomModal } from "@/components/CustomModal";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import { Divider } from "@/components/Divider";
 
 const API_KEY_TEXT = `
 API Keys allow you to access Vanguard AI APIs programmatically. Click the button below to generate a new API Key.
@@ -220,8 +218,8 @@ function Main() {
                         if (!response.ok) {
                           const errorMsg = await response.text();
                           toast({
-                            title: "Error",
-                            description: `Failed to regenerate API Key: ${errorMsg}`,
+                            title: "Regeneration Failed",
+                            description: `Could not regenerate the API Key: ${errorMsg}. Please check your request and try again.`,
                             variant: "destructive",
                           });
                           return;
@@ -243,8 +241,8 @@ function Main() {
                         if (!response.ok) {
                           const errorMsg = await response.text();
                           toast({
-                            title: "Error",
-                            description: `Failed to delete API Key: ${errorMsg}`,
+                            title: "Deletion Failed",
+                            description: `Unable to remove the API Key: ${errorMsg}. Please try again.`,
                             variant: "destructive",
                           });
                           return;
@@ -265,10 +263,12 @@ function Main() {
 
 export default function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle title="API Keys" icon={<KeyIcon size={32} />} />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle title="API Keys" icon={<KeyIcon size={32} />} />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

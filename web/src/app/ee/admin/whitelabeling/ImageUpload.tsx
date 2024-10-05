@@ -30,8 +30,8 @@ export function ImageUpload({
       onDrop={(acceptedFiles) => {
         if (acceptedFiles.length !== 1) {
           toast({
-            title: "Error",
-            description: "Only one file can be uploaded at a time",
+            title: "Upload Error",
+            description: "Please upload only one file at a time.",
             variant: "destructive",
           });
         }
@@ -52,7 +52,7 @@ export function ImageUpload({
             }`}
           >
             <input {...getInputProps()} />
-            <Button>Upload</Button>
+            <Button type="button">Upload</Button>
             <b className="text-emphasis text-sm md:text-base">
               Drag and drop a .png or .jpg file, or click to select a file
             </b>

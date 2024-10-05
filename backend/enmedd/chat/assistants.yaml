@@ -36,29 +36,6 @@ assistants:
     #   - "Engineer Onboarding"
     #   - "Benefits"
     document_sets: []
-    starter_messages:
-      [
-        {
-          "name": "Business Advice",
-          "description": "Ask me anything about starting, running, or growing a business.",
-          "message": "What business advice do you need?",
-        },
-        {
-          "name": "Marketing Strategy",
-          "description": "Let's discuss your target audience, messaging, and channels.",
-          "message": "How can I improve my marketing strategy?",
-        },
-        {
-          "name": "Financial Planning",
-          "description": "Ask me about budgeting, cash flow, or investment.",
-          "message": "Do you have any questions about business finance?",
-        },
-        {
-          "name": "Employee Management",
-          "description": "Let's discuss hiring, onboarding, performance reviews, or team building.",
-          "message": "How can I improve my employee management skills?",
-        },
-      ]
 
   - id: 1
     name: "GPT"

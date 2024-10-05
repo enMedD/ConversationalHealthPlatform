@@ -7,6 +7,8 @@ from datetime import timezone
 from sqlalchemy.orm import Session
 
 from enmedd.background.indexing.checkpointing import get_time_windows_for_index_attempt
+from enmedd.background.indexing.tracer import EnmeddTracer
+from enmedd.configs.app_configs import INDEXING_TRACER_INTERVAL
 from enmedd.configs.app_configs import POLL_CONNECTOR_OFFSET
 from enmedd.connectors.factory import instantiate_connector
 from enmedd.connectors.interfaces import GenerateDocumentsOutput
@@ -34,6 +36,8 @@ from enmedd.utils.logger import setup_logger
 from enmedd.utils.variable_functionality import global_version
 
 logger = setup_logger()
+
+INDEXING_TRACER_NUM_PRINT_ENTRIES = 5
 
 
 def _get_document_generator(
@@ -139,6 +143,12 @@ def _run_indexing(
         )
     )
 
+    if INDEXING_TRACER_INTERVAL > 0:
+        logger.info(f"Memory tracer starting: interval={INDEXING_TRACER_INTERVAL}")
+        tracer = EnmeddTracer()
+        tracer.start()
+        tracer.snap()
+
     net_doc_change = 0
     document_count = 0
     chunk_count = 0
@@ -165,6 +175,10 @@ def _run_indexing(
             )
 
             all_connector_doc_ids: set[str] = set()
+
+            tracer_counter = 0
+            if INDEXING_TRACER_INTERVAL > 0:
+                tracer.snap()
             for doc_batch in doc_batch_generator:
                 # Check if connector is disabled mid run and stop if so unless it's the secondary
                 # index being built. We want to populate it even for paused connectors
@@ -215,6 +229,17 @@ def _run_indexing(
                     docs_removed_from_index=0,
                 )
 
+                tracer_counter += 1
+                if (
+                    INDEXING_TRACER_INTERVAL > 0
+                    and tracer_counter % INDEXING_TRACER_INTERVAL == 0
+                ):
+                    logger.info(
+                        f"Running trace comparison for batch {tracer_counter}. interval={INDEXING_TRACER_INTERVAL}"
+                    )
+                    tracer.snap()
+                    tracer.log_previous_diff(INDEXING_TRACER_NUM_PRINT_ENTRIES)
+
             run_end_dt = window_end
             if is_primary:
                 update_connector_credential_pair(
@@ -253,11 +278,22 @@ def _run_indexing(
                         credential_id=index_attempt.credential.id,
                         net_docs=net_doc_change,
                     )
+                if INDEXING_TRACER_INTERVAL > 0:
+                    tracer.stop()
                 raise e
 
             # break => similar to success case. As mentioned above, if the next run fails for the same
             # reason it will then be marked as a failure
             break
+
+    if INDEXING_TRACER_INTERVAL > 0:
+        logger.info(
+            f"Running trace comparison between start and end of indexing. {tracer_counter} batches processed."
+        )
+        tracer.snap()
+        tracer.log_first_diff(INDEXING_TRACER_NUM_PRINT_ENTRIES)
+        tracer.stop()
+        logger.info("Memory tracer stopped.")
 
     mark_attempt_succeeded(index_attempt, db_session)
     if is_primary:

@@ -21,7 +21,6 @@ import {
 } from "@/components/admin/connectors/Field";
 import { FileUpload } from "@/components/admin/connectors/FileUpload";
 import { getNameFromPath } from "@/lib/fileUtils";
-import { Divider } from "@tremor/react";
 import { AdminPageTitle } from "@/components/admin/Title";
 import IsPublicField from "@/components/admin/connectors/IsPublicField";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
@@ -29,6 +28,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
+import { Divider } from "@/components/Divider";
 
 const Main = () => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -105,8 +105,8 @@ const Main = () => {
                     const responseJson = await response.json();
                     if (!response.ok) {
                       toast({
-                        title: "Error",
-                        description: `Unable to upload files - ${responseJson.detail}`,
+                        title: "File Upload Failed",
+                        description: `Unable to upload files: ${responseJson.detail}`,
                         variant: "destructive",
                       });
                       return;
@@ -127,8 +127,8 @@ const Main = () => {
                       });
                     if (connectorErrorMsg || !connector) {
                       toast({
-                        title: "Error",
-                        description: `Unable to create connector - ${connectorErrorMsg}`,
+                        title: "Connector Creation Failed",
+                        description: `Unable to create connector: ${connectorErrorMsg || "Unknown error occurred"}`,
                         variant: "destructive",
                       });
                       return;
@@ -145,8 +145,8 @@ const Main = () => {
                     if (!createCredentialResponse.ok) {
                       const errorMsg = await createCredentialResponse.text();
                       toast({
-                        title: "Error",
-                        description: `Error creating credential for CC Pair - ${errorMsg}`,
+                        title: "Credential Creation Failed",
+                        description: `There was an issue creating the credential for the CC Pair: ${errorMsg}`,
                         variant: "destructive",
                       });
                       formikHelpers.setSubmitting(false);
@@ -165,8 +165,8 @@ const Main = () => {
                       const credentialResponseJson =
                         await credentialResponse.json();
                       toast({
-                        title: "Error",
-                        description: `Unable to link connector to credential - ${credentialResponseJson.detail}`,
+                        title: "Failed to Link Connector",
+                        description: `Unable to link connector to credential: ${credentialResponseJson.detail}`,
                         variant: "destructive",
                       });
                       return;
@@ -178,8 +178,8 @@ const Main = () => {
                     );
                     if (runConnectorErrorMsg) {
                       toast({
-                        title: "Error",
-                        description: `Unable to run connector - ${runConnectorErrorMsg}`,
+                        title: "Failed to Run Connector",
+                        description: `Unable to run the connector: ${runConnectorErrorMsg}`,
                         variant: "destructive",
                       });
                       return;
@@ -189,8 +189,9 @@ const Main = () => {
                     setSelectedFiles([]);
                     formikHelpers.resetForm();
                     toast({
-                      title: "Success",
-                      description: "Successfully uploaded files!",
+                      title: "Files Uploaded Successfully",
+                      description:
+                        "Your files have been uploaded without any issues!",
                       variant: "success",
                     });
                   };
@@ -275,12 +276,14 @@ const Main = () => {
 
 export default function File() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle icon={<FileIcon size={32} />} title="File" />
+        <AdminPageTitle icon={<FileIcon size={32} />} title="File" />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

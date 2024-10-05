@@ -10,7 +10,6 @@ from fastapi import UploadFile
 from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import AnalyticsScriptUpload
-from ee.enmedd.server.workspace.models import Workspaces
 from enmedd.configs.constants import FileOrigin
 from enmedd.dynamic_configs.factory import get_dynamic_config_store
 from enmedd.dynamic_configs.interface import ConfigNotFoundError
@@ -19,24 +18,7 @@ from enmedd.utils.logger import setup_logger
 
 load_dotenv()
 # TODO : replace the value name
-_WORKSPACES_KEY = "enmedd_workspaces"
 logger = setup_logger()
-
-
-def load_settings() -> Workspaces:
-    dynamic_config_store = get_dynamic_config_store()
-    try:
-        settings = Workspaces(**cast(dict, dynamic_config_store.load(_WORKSPACES_KEY)))
-    except ConfigNotFoundError:
-        settings = Workspaces()
-        dynamic_config_store.store(_WORKSPACES_KEY, settings.dict())
-
-    return settings
-
-
-def store_settings(settings: Workspaces) -> None:
-    get_dynamic_config_store().store(_WORKSPACES_KEY, settings.dict())
-
 
 _CUSTOM_ANALYTICS_SCRIPT_KEY = "__custom_analytics_script__"
 _CUSTOM_ANALYTICS_SECRET_KEY = os.environ.get("CUSTOM_ANALYTICS_SECRET_KEY")
@@ -63,6 +45,7 @@ def store_analytics_script(analytics_script_upload: AnalyticsScriptUpload) -> No
 
 
 _LOGO_FILENAME = "__logo__"
+_PROFILE_FILENAME = "__profile__"
 
 
 def is_valid_file_type(filename: str) -> bool:
@@ -112,6 +95,48 @@ def upload_logo(
     file_store = get_default_file_store(db_session)
     file_store.save_file(
         file_name=_LOGO_FILENAME,
+        content=content,
+        display_name=display_name,
+        file_origin=FileOrigin.OTHER,
+        file_type=file_type,
+    )
+    return True
+
+
+def upload_profile(
+    db_session: Session,
+    file: UploadFile | str,
+) -> bool:
+    content: IO[Any]
+
+    if isinstance(file, str):
+        logger.info(f"Uploading logo from local path {file}")
+        if not os.path.isfile(file) or not is_valid_file_type(file):
+            logger.error(
+                "Invalid file type- only .png, .jpg, and .jpeg files are allowed"
+            )
+            return False
+
+        with open(file, "rb") as file_handle:
+            file_content = file_handle.read()
+        content = BytesIO(file_content)
+        display_name = file
+        file_type = guess_file_type(file)
+
+    else:
+        logger.info("Uploading logo from uploaded file")
+        if not file.filename or not is_valid_file_type(file.filename):
+            raise HTTPException(
+                status_code=400,
+                detail="Invalid file type- only .png, .jpg, and .jpeg files are allowed",
+            )
+        content = file.file
+        display_name = file.filename
+        file_type = file.content_type or "image/jpeg"
+
+    file_store = get_default_file_store(db_session)
+    file_store.save_file(
+        file_name=_PROFILE_FILENAME,
         content=content,
         display_name=display_name,
         file_origin=FileOrigin.OTHER,

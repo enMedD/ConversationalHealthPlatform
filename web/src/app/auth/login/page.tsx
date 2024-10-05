@@ -11,10 +11,11 @@ import { SignInButton } from "./SignInButton";
 import { LogInForms } from "./LoginForms";
 import { Card, Title, Text } from "@tremor/react";
 import Link from "next/link";
-import { Logo } from "@/components/Logo";
+import Logo from "../../../../public/logo-brand.png";
 import { LoginText } from "./LoginText";
 import Image from "next/image";
-import LoginImage from "../../../../public/logo-brand.png";
+import LoginImage from "../../../../public/LoginImage.png";
+import { WelcomeTopBar } from "@/components/TopBar";
 
 const Page = async ({
   searchParams,
@@ -66,11 +67,14 @@ const Page = async ({
   }
 
   return (
-    <main>
+    <main className="relative h-full">
       <HealthCheckBanner />
-      <div className="flex justify-center">
-        <div className="flex items-center justify-center lg:justify-between w-full min-h-screen px-6 md:w-2/3 md:px-0 gap-10">
-          <div>
+
+      <WelcomeTopBar />
+
+      <div className="w-screen flex h-full overflow-y-auto">
+        <div className="w-full h-full xl:w-1/2 flex items-start justify-center px-6 lg:px-14 3xl:px-0 pt-28">
+          <div className="w-full md:w-3/4 lg:w-1/2 xl:w-full 3xl:w-1/2 my-auto pb-14 md:pb-20">
             {authUrl && authTypeMetadata && (
               <>
                 <LoginText />
@@ -81,26 +85,29 @@ const Page = async ({
               </>
             )}
             {authTypeMetadata?.authType === "basic" && (
-              <div className="lg:w-96">
+              <>
                 <LoginText />
-                <div className="my-6">
+                <div className="pt-8 w-full">
                   <LogInForms />
                 </div>
-                <div className="flex">
-                  <Text className="mt-4">
-                    Don&apos;t have an account?{" "}
-                    <Link href="/auth/signup" className="font-medium text-link">
-                      Create an account
-                    </Link>
-                  </Text>
-                </div>
-              </div>
+                <p className="pt-8 text-center text-sm">
+                  Don&apos;t have an account?{" "}
+                  <Link
+                    href="/auth/signup"
+                    className="text-sm font-medium text-link hover:underline"
+                  >
+                    Create an account
+                  </Link>
+                </p>
+              </>
             )}
           </div>
+        </div>
+        <div className="w-1/2 h-full relative overflow-hidden hidden xl:flex">
           <Image
             src={LoginImage}
-            alt="LoginImage"
-            className="hidden w-1/2 h-auto lg:flex"
+            alt="login-image"
+            className="w-full h-full object-cover"
           />
         </div>
       </div>

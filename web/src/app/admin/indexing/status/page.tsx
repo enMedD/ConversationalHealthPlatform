@@ -37,13 +37,13 @@ function Main() {
 
   if (indexAttemptData.length === 0) {
     return (
-      <Text>
+      <p>
         It looks like you don&apos;t have any connectors setup yet. Visit the{" "}
         <Link className="text-link" href="/admin/data-sources">
           Add Data Sources
         </Link>{" "}
         page to get started!
-      </Text>
+      </p>
     );
   }
 
@@ -65,17 +65,19 @@ function Main() {
 
 export default function Status() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle
-        icon={<NotebookIcon size={32} />}
-        title="Existing Data Sources"
-        farRightElement={
-          <Link href="/admin/data-sources">
-            <Button>Add Data Sources</Button>
-          </Link>
-        }
-      />
-      <Main />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle
+          icon={<NotebookIcon size={32} />}
+          title="Existing Data Sources"
+          farRightElement={
+            <Link href="/admin/data-sources">
+              <Button>Add Data Sources</Button>
+            </Link>
+          }
+        />
+        <Main />
+      </div>
     </div>
   );
 }

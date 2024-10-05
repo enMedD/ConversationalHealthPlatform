@@ -1,7 +1,6 @@
 "use client";
 
 import { CCPairBasicInfo, DocumentSet, User, Teamspace } from "@/lib/types";
-import { Divider, Italic, Text } from "@tremor/react";
 import {
   ArrayHelpers,
   ErrorMessage,
@@ -47,6 +46,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import { Divider } from "@/components/Divider";
 
 function findSearchTool(tools: ToolSnapshot[]) {
   return tools.find((tool) => tool.in_code_tool_id === "SearchTool");
@@ -55,10 +55,6 @@ function findSearchTool(tools: ToolSnapshot[]) {
 function findImageGenerationTool(tools: ToolSnapshot[]) {
   return tools.find((tool) => tool.in_code_tool_id === "ImageGenerationTool");
 }
-
-/* function Label({ children }: { children: string | JSX.Element }) {
-  return <div className="block font-medium text-base ">{children}</div>;
-} */
 
 function SubLabel({ children }: { children: string | JSX.Element }) {
   return <span className="text-sm text-subtle mb-2">{children}</span>;
@@ -255,8 +251,9 @@ export function AssistantEditor({
         onSubmit={async (values, formikHelpers) => {
           if (finalPromptError) {
             toast({
-              title: "Error",
-              description: "Cannot submit while there are errors in the form!",
+              title: "Submission Blocked",
+              description:
+                "Please resolve the errors in the form before submitting.",
               variant: "destructive",
             });
             return;
@@ -267,9 +264,9 @@ export function AssistantEditor({
             !values.llm_model_version_override
           ) {
             toast({
-              title: "Error",
+              title: "Model Selection Required",
               description:
-                "Must select a model if a non-default LLM provider is chosen.",
+                "Please select a model when choosing a non-default LLM provider.",
               variant: "destructive",
             });
             return;
@@ -347,7 +344,7 @@ export function AssistantEditor({
 
           if (error || !assistantResponse) {
             toast({
-              title: "Error",
+              title: "Assistant Creation Failed",
               description: `Failed to create Assistant - ${error}`,
               variant: "destructive",
             });
@@ -365,7 +362,7 @@ export function AssistantEditor({
               );
               if (success) {
                 toast({
-                  title: "Success",
+                  title: "Assistant Added",
                   description: `"${assistant.name}" has been added to your list.`,
                   variant: "success",
                 });
@@ -373,7 +370,7 @@ export function AssistantEditor({
                 router.refresh();
               } else {
                 toast({
-                  title: "Error",
+                  title: "Failed to Add Assistant",
                   description: `"${assistant.name}" could not be added to your list.`,
                   variant: "destructive",
                 });
@@ -405,68 +402,69 @@ export function AssistantEditor({
           return (
             <Form>
               <div className="pb-6">
-                <HidableSection sectionTitle="Basics">
-                  <>
-                    <TextFormField
-                      name="name"
-                      label="Name"
-                      disabled={isUpdate}
-                      subtext="Users will be able to select this Assistant based on this name."
-                    />
+                <>
+                  <h2 className="font-bold text:lg md:text-xl my-auto mb-4">
+                    Basics
+                  </h2>
+                  <TextFormField
+                    name="name"
+                    label="Name"
+                    disabled={isUpdate}
+                    subtext="Users will be able to select this Assistant based on this name."
+                  />
 
-                    <TextFormField
-                      name="description"
-                      label="Description"
-                      subtext="Provide a short descriptions which gives users a hint as to what they should use this Assistant for."
-                    />
+                  <TextFormField
+                    name="description"
+                    label="Description"
+                    subtext="Provide a short descriptions which gives users a hint as to what they should use this Assistant for."
+                  />
 
-                    <TextFormField
-                      name="system_prompt"
-                      label="System Prompt"
-                      isTextArea={true}
-                      subtext={
-                        'Give general info about what the Assistant is about. For example, "You are an assistant for On-Call engineers. Your goal is to read the provided context documents and give recommendations as to how to resolve the issue."'
-                      }
-                      onChange={(e) => {
-                        setFieldValue("system_prompt", e.target.value);
-                        triggerFinalPromptUpdate(
-                          e.target.value,
-                          values.task_prompt,
-                          searchToolEnabled()
-                        );
-                      }}
-                      error={finalPromptError}
-                    />
+                  <TextFormField
+                    name="system_prompt"
+                    label="System Prompt"
+                    isTextArea={true}
+                    subtext={
+                      'Give general info about what the Assistant is about. For example, "You are an assistant for On-Call engineers. Your goal is to read the provided context documents and give recommendations as to how to resolve the issue."'
+                    }
+                    onChange={(e) => {
+                      setFieldValue("system_prompt", e.target.value);
+                      triggerFinalPromptUpdate(
+                        e.target.value,
+                        values.task_prompt,
+                        searchToolEnabled()
+                      );
+                    }}
+                    error={finalPromptError}
+                  />
 
-                    <TextFormField
-                      name="task_prompt"
-                      label="Task Prompt (Optional)"
-                      isTextArea={true}
-                      subtext={`Give specific instructions as to what to do with the user query. 
+                  <TextFormField
+                    name="task_prompt"
+                    label="Task Prompt (Optional)"
+                    isTextArea={true}
+                    subtext={`Give specific instructions as to what to do with the user query. 
                       For example, "Find any relevant sections from the provided documents that can 
                       help the user resolve their issue and explain how they are relevant."`}
-                      onChange={(e) => {
-                        setFieldValue("task_prompt", e.target.value);
-                        triggerFinalPromptUpdate(
-                          values.system_prompt,
-                          e.target.value,
-                          searchToolEnabled()
-                        );
-                      }}
-                      error={finalPromptError}
-                    />
+                    onChange={(e) => {
+                      setFieldValue("task_prompt", e.target.value);
+                      triggerFinalPromptUpdate(
+                        values.system_prompt,
+                        e.target.value,
+                        searchToolEnabled()
+                      );
+                    }}
+                    error={finalPromptError}
+                  />
 
-                    <Label>Final Prompt</Label>
+                  <Label>Final Prompt</Label>
 
-                    {finalPrompt ? (
-                      <pre className="text-sm mt-2 whitespace-pre-wrap">
-                        {finalPrompt}
-                      </pre>
-                    ) : (
-                      "-"
-                    )}
-                  </>
-                </HidableSection>
+                  {finalPrompt ? (
+                    <pre className="text-sm mt-2 whitespace-pre-wrap">
+                      {finalPrompt}
+                    </pre>
+                  ) : (
+                    "-"
+                  )}
+                </>
 
                 <Divider />
 
@@ -547,7 +545,7 @@ export function AssistantEditor({
                                     )}
                                   />
                                 ) : (
-                                  <Italic className="text-sm">
+                                  <i className="text-sm">
                                     No Document Sets available.{" "}
                                     {user?.role !== "admin" && (
                                       <>
@@ -556,7 +554,7 @@ export function AssistantEditor({
                                         Vanguard AI for assistance.
                                       </>
                                     )}
-                                  </Italic>
+                                  </i>
                                 )}
 
                                 <>
@@ -653,10 +651,7 @@ export function AssistantEditor({
 
                 {llmProviders.length > 0 && (
                   <>
-                    <HidableSection
-                      sectionTitle="[Advanced] Model Selection"
-                      defaultHidden
-                    >
+                    <HidableSection sectionTitle="[Advanced] Model Selection">
                       <>
                         <p className="text-sm">
                           Pick which LLM to use for this Assistant. If left as
@@ -668,6 +663,7 @@ export function AssistantEditor({
                           For more information on the different LLMs, checkout
                           the{" "}
                           <a
+                            rel="noopener"
                             href="https://platform.openai.com/docs/models"
                             target="_blank"
                             className="text-blue-500"
@@ -740,10 +736,7 @@ export function AssistantEditor({
                   </>
                 )}
 
-                <HidableSection
-                  sectionTitle="[Advanced] Starter Messages"
-                  defaultHidden
-                >
+                <HidableSection sectionTitle="[Advanced] Starter Messages">
                   <>
                     <div className="pb-4">
                       <p className="text-sm">

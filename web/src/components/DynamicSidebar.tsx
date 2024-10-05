@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { WorkSpaceSidebar } from "@/app/chat/sessionSidebar/WorkSpaceSidebar";
+import { GlobalSidebar } from "@/components/globalSidebar/GlobalSidebar";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { User } from "@/lib/types";
 import { useContext, useEffect, useState } from "react";
@@ -10,7 +10,6 @@ import { CustomTooltip } from "./CustomTooltip";
 
 interface SidebarProps {
   user?: User | null;
-  isSearch?: boolean;
   openSidebar?: boolean;
   toggleLeftSideBar?: () => void;
   children?: React.ReactNode;
@@ -18,7 +17,6 @@ interface SidebarProps {
 
 export function DynamicSidebar({
   user,
-  isSearch,
   openSidebar,
   toggleLeftSideBar,
   children,
@@ -78,12 +76,12 @@ export function DynamicSidebar({
       </AnimatePresence>
 
       <div
-        className={`fixed flex-none h-full z-overlay top-0 left-0 transition-[width] ease-in-out duration-500 overflow-hidden lg:overflow-visible lg:!w-auto ${
-          openSidebar ? "w-[90vw] md:w-[75vw]" : "w-0"
-        } ${isSearch ? "xl:relative" : "lg:relative"}`}
+        className={`fixed flex-none h-full z-overlay top-0 left-0 transition-[width] ease-in-out duration-500 overflow-hidden lg:overflow-visible lg:!w-auto lg:relative ${
+          openSidebar ? "w-[85vw] md:w-[75vw]" : "w-0"
+        }`}
       >
         <div className="h-full relative flex w-full">
-          <WorkSpaceSidebar openSidebar={openSidebar} user={user} />
+          <GlobalSidebar openSidebar={openSidebar} user={user} />
           {children && (
             <>
               <div
@@ -100,7 +98,7 @@ export function DynamicSidebar({
                   {children}
                 </div>
               </div>
-              <div className="h-full flex items-center justify-center">
+              <div className="h-full flex items-center justify-center absolute left-full">
                 <CustomTooltip
                   trigger={
                     <button

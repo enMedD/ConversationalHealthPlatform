@@ -20,10 +20,11 @@ import { ConnectorForm } from "@/components/admin/connectors/ConnectorForm";
 import { ConnectorsTable } from "@/components/admin/connectors/table/ConnectorsTable";
 import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
-import { Divider, Text, Title, Button } from "@tremor/react";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
+import { Divider } from "@/components/Divider";
+import { Button } from "@/components/ui/button";
 
 const Main = () => {
   const { toast } = useToast();
@@ -95,13 +96,12 @@ const Main = () => {
               {notionCredential.credential_json?.notion_integration_token}
             </p>
             <Button
-              className="p-1 ml-1 rounded-full hover:bg-gray-700"
               onClick={async () => {
                 if (notionConnectorIndexingStatuses.length > 0) {
                   toast({
-                    title: "Error",
+                    title: "Cannot Delete Credentials",
                     description:
-                      "Must delete all connectors before deleting credentials",
+                      "Please delete all connectors associated with these credentials before proceeding.",
                     variant: "destructive",
                   });
                   return;
@@ -109,7 +109,7 @@ const Main = () => {
                 await adminDeleteCredential(notionCredential.id);
                 refreshCredentials();
               }}
-              variant="light"
+              variant="destructive"
             >
               <TrashIcon />
             </Button>
@@ -165,9 +165,9 @@ const Main = () => {
       <h3 className="mt-6 mb-2 ml-auto mr-auto">Step 2: Manage Connectors</h3>
       {notionConnectorIndexingStatuses.length > 0 && (
         <>
-          <Text className="mb-2">
+          <p className="mb-2">
             The latest page updates are fetched from Notion every 10 minutes.
-          </Text>
+          </p>
           <div className="mb-2">
             <ConnectorsTable<NotionConfig, NotionCredentialJson>
               connectorIndexingStatuses={notionConnectorIndexingStatuses}
@@ -266,12 +266,14 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle icon={<NotionIcon size={32} />} title="Notion" />
+        <AdminPageTitle icon={<NotionIcon size={32} />} title="Notion" />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

@@ -2,6 +2,7 @@
 
 import { BackButton } from "@/components/BackButton";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import { SearchInput } from "@/components/SearchInput";
 import { SourceIcon } from "@/components/SourceIcon";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { Input } from "@/components/ui/input";
@@ -45,7 +46,7 @@ function SourceTile({
           </div>
         }
         delayDuration={0}
-        /* style="bg-primary border-none text-inverted" */
+        asChild
       >
         {sourceMetadata.displayName}
       </CustomTooltip>
@@ -109,49 +110,46 @@ export default function Page() {
   };
 
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle icon={<CloudUpload size={24} />} title="Data Sources" />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle icon={<CloudUpload size={24} />} title="Data Sources" />
 
-      <p>
-        Connect Vanguard AI to your organization&apos;s knowledge sources.
-        We&apos;ll automatically sync your data into Vanguard AI, so you can
-        find exactly what you&apos;re looking for in one place.
-      </p>
+        <p>
+          Connect Vanguard AI to your organization&apos;s knowledge sources.
+          We&apos;ll automatically sync your data into Vanguard AI, so you can
+          find exactly what you&apos;re looking for in one place.
+        </p>
 
-      <div className="relative md:w-96 mt-6">
-        <Input
-          className="pl-9"
-          ref={searchInputRef}
-          placeholder="Search connectors..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          onKeyDown={handleKeyPress}
-        />
-        <Search
-          className="absolute left-3 top-1/2 -translate-y-1/2"
-          size={15}
-        />
-      </div>
+        <div className="relative md:w-[500px] mt-6">
+          <SearchInput
+            ref={searchInputRef}
+            placeholder="Search existing connectors..."
+            value={searchTerm}
+            onChange={setSearchTerm}
+            onKeyDown={handleKeyPress}
+          />
+        </div>
 
-      {Object.entries(categorizedSources)
-        .filter(([_, sources]) => sources.length > 0)
-        .map(([category, sources], categoryInd) => (
-          <div key={category} className="border rounded-lg p-4 md:p-6 mt-6">
-            <span className="font-bold pb-2 block text-lg md:text-2xl text-strong">
-              {category}
-            </span>
-            <div className="flex items-center flex-wrap gap-3 md:gap-4 pt-6">
-              {sources.map((source) => (
-                <SourceTile
-                  key={source.internalName}
-                  sourceMetadata={source}
-                  category={category}
-                  disabled
-                />
-              ))}
+        {Object.entries(categorizedSources)
+          .filter(([_, sources]) => sources.length > 0)
+          .map(([category, sources], categoryInd) => (
+            <div key={category} className="border rounded-lg p-4 md:p-6 mt-6">
+              <span className="font-bold pb-2 block text-lg md:text-2xl text-strong">
+                {category}
+              </span>
+              <div className="flex items-center flex-wrap gap-3 md:gap-4 pt-6">
+                {sources.map((source) => (
+                  <SourceTile
+                    key={source.internalName}
+                    sourceMetadata={source}
+                    category={category}
+                    disabled
+                  />
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ))}
+      </div>
     </div>
   );
 }

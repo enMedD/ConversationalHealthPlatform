@@ -96,9 +96,9 @@ const Main = () => {
               onClick={async () => {
                 if (zendeskConnectorIndexingStatuses.length > 0) {
                   toast({
-                    title: "Error",
+                    title: "Cannot Delete Credentials",
                     description:
-                      "Must delete all connectors before deleting credentials",
+                      "Please delete all connectors associated with these credentials before proceeding.",
                     variant: "destructive",
                   });
                   return;
@@ -243,12 +243,14 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle icon={<ZendeskIcon size={32} />} title="Zendesk" />
+        <AdminPageTitle icon={<ZendeskIcon size={32} />} title="Zendesk" />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

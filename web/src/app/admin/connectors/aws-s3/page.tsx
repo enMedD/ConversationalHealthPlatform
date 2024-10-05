@@ -18,13 +18,14 @@ import {
   S3Config,
   S3CredentialJson,
 } from "@/lib/types";
-import { Text, Title, Button } from "@tremor/react";
+import { Text, Title } from "@tremor/react";
 import useSWR, { useSWRConfig } from "swr";
 import * as Yup from "yup";
 import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
 
 const S3Main = () => {
   const { toast } = useToast();
@@ -95,13 +96,12 @@ const S3Main = () => {
               {s3Credential.credential_json.aws_access_key_id}
             </p>
             <Button
-              className="p-1 ml-1 rounded hover:bg-hover"
               onClick={async () => {
                 if (s3ConnectorIndexingStatuses.length > 0) {
                   toast({
-                    title: "Error",
+                    title: "Cannot Delete Credentials",
                     description:
-                      "Must delete all connectors before deleting credentials",
+                      "Please delete all connectors associated with these credentials before proceeding.",
                     variant: "destructive",
                   });
                   return;
@@ -109,7 +109,9 @@ const S3Main = () => {
                 await adminDeleteCredential(s3Credential.id);
                 refreshCredentials();
               }}
-              variant="light"
+              variant="ghost"
+              size="icon"
+              className="ml-2"
             >
               <TrashIcon />
             </Button>
@@ -247,12 +249,14 @@ export default function Page() {
   const [selectedStorage, setSelectedStorage] = useState<string>("s3");
 
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle icon={<S3Icon size={32} />} title="S3 Storage" />
+        <AdminPageTitle icon={<S3Icon size={32} />} title="S3 Storage" />
 
-      <S3Main key={1} />
+        <S3Main key={1} />
+      </div>
     </div>
   );
 }

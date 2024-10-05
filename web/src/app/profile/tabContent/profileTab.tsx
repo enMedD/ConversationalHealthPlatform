@@ -1,10 +1,14 @@
+"use client";
+
 import { Button } from "@/components/ui/button";
 import { User as UserTypes } from "@/lib/types";
-import Image from "next/image";
-import { User } from "lucide-react";
-import Logo from "../../../../public/logo.png";
+import { Upload, User } from "lucide-react";
 import { UserProfile } from "@/components/UserProfile";
-import { CombinedSettings, fetchSettingsSS } from "@/components/settings/lib";
+import { CombinedSettings } from "@/components/settings/lib";
+import { useState, useEffect } from "react";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/hooks/use-toast";
+import Image from "next/image";
 
 export default function ProfileTab({
   user,
@@ -13,110 +17,239 @@ export default function ProfileTab({
   user: UserTypes | null;
   combinedSettings: CombinedSettings | null;
 }) {
+  const { toast } = useToast();
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [fullName, setFullName] = useState(user?.full_name || "");
+  const [companyName, setCompanyName] = useState(user?.company_name || "");
+  const [email, setEmail] = useState(user?.email || "");
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+
+  // Fetch profile image on mount
+  useEffect(() => {
+    const fetchProfileImage = async () => {
+      try {
+        const response = await fetch("/api/me/profile");
+        if (response.ok) {
+          const imageBlob = await response.blob();
+          const imageUrl = URL.createObjectURL(imageBlob);
+          setProfileImageUrl(imageUrl);
+        }
+      } catch (error) {
+        console.error("Error fetching profile image:", error);
+      }
+    };
+
+    fetchProfileImage();
+  }, []);
+
+  const handleSaveChanges = async () => {
+    const updatedUser = {
+      full_name: fullName,
+      company_name: companyName,
+    };
+    const response = await fetch("/api/users/me", {
+      headers: {
+        "Content-Type": "application/json",
+      },
+      method: "PATCH",
+      body: JSON.stringify(updatedUser),
+    });
+    if (response.status == 200) {
+      toast({
+        title: "Successfully edited user information",
+        description: "You have successfully updated your personal information.",
+        variant: "success",
+      });
+    } else {
+      toast({
+        title: "Something went wrong during update",
+        description: `Error: ${response.statusText}`,
+        variant: "destructive",
+      });
+    }
+
+    if (selectedFile) {
+      const formData = new FormData();
+      formData.append("file", selectedFile);
+      setSelectedFile(null);
+      const uploadResponse = await fetch("/api/me/profile", {
+        method: "PUT",
+        body: formData,
+      });
+      if (!uploadResponse.ok) {
+        const errorMsg = (await uploadResponse.json()).detail;
+        toast({
+          title: "Failed to upload logo.",
+          description: errorMsg,
+          variant: "destructive",
+        });
+        return;
+      }
+    }
+    setIsEditing(false);
+  };
+
+  const UploadProfilePhoto = () => {
+    setIsEditing(true);
+
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = "image/*";
+    input.onchange = (e) => {
+      const target = e.target as HTMLInputElement;
+      if (target.files) {
+        const file = target.files[0];
+        setSelectedFile(file);
+      }
+    };
+    input.click();
+  };
+
+  const handleRemovePhoto = async () => {
+    setSelectedFile(null);
+    const response = await fetch("/api/me/profile", {
+      method: "DELETE",
+    });
+    if (response.ok) {
+      setProfileImageUrl(null);
+      toast({
+        title: "Profile photo removed",
+        description: "Your profile photo has been successfully removed.",
+        variant: "success",
+      });
+    } else {
+      const errorMsg = (await response.json()).detail;
+      toast({
+        title: "Failed to remove profile photo.",
+        description: errorMsg,
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <>
       <div className="flex py-8 border-b">
-        <div className="w-[500px] text-sm">
+        <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
           <span className="font-semibold text-inverted-inverted">
             Your Photo
           </span>
-          <p className="pt-1">This will be displayed on your profile.</p>
+          <p className="pt-1 text-sm">
+            This will be displayed on your profile.
+          </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center justify-center rounded-full h-[65px] w-[65px] shrink-0 aspect-square text-2xl font-normal">
-            {user && user.full_name ? (
-              <UserProfile size={65} user={user} />
+        <div className="flex items-center justify-between gap-3 md:w-[100px] cursor-pointer">
+          <div
+            className="flex items-center justify-center rounded-full h-[65px] w-[65px] shrink-0 aspect-square text-2xl font-normal"
+            onClick={UploadProfilePhoto}
+          >
+            {selectedFile ? (
+              <img
+                src={URL.createObjectURL(selectedFile)}
+                alt="Profile"
+                className="rounded-full object-cover object-center h-[65px] w-[65px]"
+              />
+            ) : profileImageUrl ? (
+              <img
+                src={profileImageUrl}
+                alt="Fetch Profile"
+                className="rounded-full object-cover object-center h-[65px] w-[65px]"
+              />
             ) : (
-              <User size={25} className="mx-auto" />
+              <UserProfile size={65} user={user} textSize="text-2xl" />
             )}
           </div>
-          <Button variant="link" className="text-error px-2">
-            Delete
-          </Button>
-          <Button variant="link" className="px-2">
-            Update
-          </Button>
+
+          {isEditing && (selectedFile || profileImageUrl) && (
+            <div className="py-4">
+              <Button
+                variant="link"
+                className="text-destructive"
+                onClick={handleRemovePhoto}
+              >
+                Remove
+              </Button>
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="py-8 border-b flex flex-col gap-5">
+      <div className="py-8 border-b flex flex-col gap-8">
         <div className="flex items-center">
-          <div className="w-[500px] text-sm">
+          <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
             <span className="font-semibold text-inverted-inverted">Name</span>
           </div>
-          <div className="w-[500px] h-10 flex items-center justify-between">
-            <span className="font-semibold text-inverted-inverted">
-              {user?.full_name || "Unknown User"}
-            </span>{" "}
-            <Button variant="outline">Edit</Button>
+          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+            {isEditing ? (
+              <Input
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+              />
+            ) : (
+              <span className="font-semibold text-inverted-inverted w-full truncate">
+                {fullName || "Unknown User"}
+              </span>
+            )}
           </div>
         </div>
         <div className="flex items-center">
-          <div className="w-[500px] text-sm">
+          <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
             <span className="font-semibold text-inverted-inverted">
               Company
             </span>
           </div>
-          <div className="w-[500px] h-10 flex items-center justify-between">
-            <span className="font-semibold text-inverted-inverted">
-              {user?.company_name || "No Company"}
-            </span>
-            <Button variant="outline">Edit</Button>
+          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+            {isEditing ? (
+              <Input
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+              />
+            ) : (
+              <span className="font-semibold text-inverted-inverted w-full truncate">
+                {companyName || "No Company"}
+              </span>
+            )}
           </div>
         </div>
         <div className="flex items-center">
-          <div className="w-[500px] text-sm">
+          <div className="w-44 sm:w-96 lg:w-[500px] shrink-0">
             <span className="font-semibold text-inverted-inverted">Email</span>
           </div>
-          <div className="w-[500px] h-10 flex items-center justify-between">
-            <span className="font-semibold text-inverted-inverted">
-              {user?.email || "anonymous@gmail.com"}
-            </span>{" "}
-            <Button variant="outline">Edit</Button>
+          <div className="md:w-[500px] h-10 flex items-center justify-between truncate">
+            {isEditing ? (
+              <Input
+                disabled
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            ) : (
+              <span className="font-semibold text-inverted-inverted w-full truncate">
+                {email || "anonymous@gmail.com"}
+              </span>
+            )}
           </div>
         </div>
       </div>
 
-      {combinedSettings?.featureFlags.multi_teamspace && (
-        <div className="flex py-8 border-b">
-          <div className="w-[500px] text-sm">
-            <span className="font-semibold text-inverted-inverted">
-              Teamspaces Joined
-            </span>
-            <p className="w-3/4 pt-1">
-              Easily switch between them and access both accounts from any
-              device.
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 w-[500px]">
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-3">
-                <Image src={Logo} alt="Logo" width={65} height={65} />
-                <span className="font-semibold text-inverted-inverted">
-                  Vanguard AI
-                </span>
-              </div>
-
-              <Button variant="outline">Manage Team</Button>
-            </div>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-3">
-                <Image src={Logo} alt="Logo" width={65} height={65} />
-                <span className="font-semibold text-inverted-inverted">
-                  Vanguard AI
-                </span>
-              </div>
-
-              <Button variant="outline">Manage Team</Button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      <div className="flex py-8 justify-end">
-        <div className="flex gap-3">
-          <Button>Save Changes</Button>
-        </div>
+      <div className="flex gap-2 py-8 justify-end">
+        {isEditing ? (
+          <>
+            <Button
+              variant="outline"
+              className="border-destructive-foreground hover:bg-destructive-foreground"
+              onClick={() => setIsEditing(false)}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleSaveChanges}>Save Changes</Button>
+          </>
+        ) : (
+          <Button variant="outline" onClick={() => setIsEditing(true)}>
+            Edit
+          </Button>
+        )}
       </div>
     </>
   );

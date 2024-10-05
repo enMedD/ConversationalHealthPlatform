@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { MinimalUserSnapshot, User } from "@/lib/types";
 import { Assistant } from "@/app/admin/assistants/interfaces";
-import { Divider, Text } from "@tremor/react";
 import Link from "next/link";
 import { orderAssistantsForUser } from "@/lib/assistants/orderAssistants";
 import {
@@ -42,6 +41,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { CustomTooltip } from "@/components/CustomTooltip";
+import { Divider } from "@/components/Divider";
 
 function AssistantListItem({
   assistant,
@@ -154,15 +154,15 @@ function AssistantListItem({
                   );
                   if (success) {
                     toast({
-                      title: "Success",
-                      description: `"${assistant.name}" has been moved up.`,
+                      title: "Move Successful",
+                      description: `"${assistant.name}" has been successfully moved up the list.`,
                       variant: "success",
                     });
                     router.refresh();
                   } else {
                     toast({
-                      title: "Error",
-                      description: `"${assistant.name}" could not be moved up.`,
+                      title: "Move Failed",
+                      description: `Unable to move "${assistant.name}" up the list. Please try again.`,
                       variant: "destructive",
                     });
                   }
@@ -180,15 +180,15 @@ function AssistantListItem({
                   );
                   if (success) {
                     toast({
-                      title: "Success",
-                      description: `"${assistant.name}" has been moved down.`,
+                      title: "Move Successful",
+                      description: `"${assistant.name}" has been successfully moved down the list.`,
                       variant: "success",
                     });
                     router.refresh();
                   } else {
                     toast({
-                      title: "Error",
-                      description: `"${assistant.name}" could not be moved down.`,
+                      title: "Move Failed",
+                      description: `Unable to move "${assistant.name}" down the list. Please try again.`,
                       variant: "destructive",
                     });
                   }
@@ -205,8 +205,8 @@ function AssistantListItem({
                     currentChosenAssistants.length === 1
                   ) {
                     toast({
-                      title: "Error",
-                      description: `Cannot remove "${assistant.name}" - you must have at least one assistant.`,
+                      title: "Removal Error",
+                      description: `You need at least one assistant in your list. Cannot remove "${assistant.name}".`,
                       variant: "destructive",
                     });
                     return;
@@ -218,15 +218,15 @@ function AssistantListItem({
                   );
                   if (success) {
                     toast({
-                      title: "Success",
-                      description: `"${assistant.name}" has been removed from your list.`,
+                      title: "Removal Successful",
+                      description: `"${assistant.name}" has been successfully removed from your list.`,
                       variant: "success",
                     });
                     router.refresh();
                   } else {
                     toast({
-                      title: "Error",
-                      description: `"${assistant.name}" could not be removed from your list.`,
+                      title: "Removal Failed",
+                      description: `Unable to remove "${assistant.name}" from your list. Please try again.`,
                       variant: "destructive",
                     });
                   }
@@ -243,15 +243,15 @@ function AssistantListItem({
                   );
                   if (success) {
                     toast({
-                      title: "Success",
-                      description: `"${assistant.name}" has been added to your list.`,
+                      title: "Addition Successful",
+                      description: `"${assistant.name}" has been successfully added to your list.`,
                       variant: "success",
                     });
                     router.refresh();
                   } else {
                     toast({
-                      title: "Error",
-                      description: `"${assistant.name}" could not be added to your list.`,
+                      title: "Addition Failed",
+                      description: `Unable to add "${assistant.name}" to your list. Please try again.`,
                       variant: "destructive",
                     });
                   }
@@ -321,11 +321,11 @@ export function AssistantsList({ user, assistants }: AssistantsListProps) {
 
       <h3 className="text-xl mb-4">Active Assistants</h3>
 
-      <Text>
+      <p>
         The order the assistants appear below will be the order they appear in
         the Assistants dropdown. The first assistant listed will be your default
         assistant when you start a new chat.
-      </Text>
+      </p>
 
       <div className="w-full py-4 mt-3">
         {filteredAssistants.map((assistant, index) => (
@@ -348,10 +348,10 @@ export function AssistantsList({ user, assistants }: AssistantsListProps) {
 
           <h3 className="text-xl mb-4">Your Hidden Assistants</h3>
 
-          <Text>
+          <p>
             Assistants you&apos;ve created that aren&apos;t currently visible in
             the Assistants selector.
-          </Text>
+          </p>
 
           <div className="w-full p-4">
             {ownedButHiddenAssistants.map((assistant, index) => (

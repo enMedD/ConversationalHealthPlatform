@@ -1,18 +1,20 @@
 "use client";
 
 import { AdminPageTitle } from "@/components/admin/Title";
-import { FiCpu } from "react-icons/fi";
 import { LLMConfiguration } from "./LLMConfiguration";
+import { Cpu } from "lucide-react";
 
 const Page = () => {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle
-        title="LLM Setup"
-        icon={<FiCpu size={32} className="my-auto" />}
-      />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle
+          title="LLM Setup"
+          icon={<Cpu size={32} className="my-auto" />}
+        />
 
-      <LLMConfiguration />
+        <LLMConfiguration />
+      </div>
     </div>
   );
 };

@@ -4,6 +4,7 @@ from typing import TypeVar
 from uuid import UUID
 
 from pydantic import BaseModel
+from pydantic import EmailStr
 from pydantic.generics import GenericModel
 
 from enmedd.auth.schemas import UserRole
@@ -34,6 +35,12 @@ class MinimalUserSnapshot(BaseModel):
 
 class FullUserSnapshot(BaseModel):
     id: UUID
+    full_name: str
+    company_name: Optional[str]
+    company_email: Optional[EmailStr]
+    company_billing: Optional[str]
+    billing_email_address: Optional[EmailStr]
+    vat: Optional[str]
     email: str
     role: UserRole
     status: UserStatus
@@ -45,3 +52,31 @@ class InvitedUserSnapshot(BaseModel):
 
 class DisplayPriorityRequest(BaseModel):
     display_priority_map: dict[int, int]
+
+
+class MinimalWorkspaceSnapshot(BaseModel):
+    id: int
+    workspace_name: str | None = None
+
+
+class MinimalTeamspaceSnapshot(BaseModel):
+    id: int
+    name: str | None = None
+    workspace: Optional[list[MinimalWorkspaceSnapshot]] = []
+
+
+# TODO add aditional teamspace info to include in the response
+class TeamspaceResponse(BaseModel):
+    id: int
+    name: str | None = None
+
+
+class WorkspaceResponse(BaseModel):
+    id: int
+    instance_id: int
+    workspace_name: str | None = None
+    workspace_description: str | None = None
+    use_custom_logo: bool = False
+    custom_logo: str | None = None
+    custom_header_logo: str | None = None
+    custom_header_content: str | None = None

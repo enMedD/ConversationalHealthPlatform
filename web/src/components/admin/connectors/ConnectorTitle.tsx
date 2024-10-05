@@ -73,24 +73,26 @@ export const ConnectorTitle = ({
     }
   }
 
-  const mainSectionClassName = "flex w-fit";
+  const mainSectionClassName = "flex w-full";
+
   const mainDisplay = (
     <CustomTooltip
       trigger={
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 w-full">
           {sourceMetadata.icon({ size: 14 })}
-          <div className="ml-1 my-auto max-w-[350px] truncate">
+          <div className="ml-1 my-auto w-full truncate">
             {ccPairName || sourceMetadata.displayName}
           </div>
         </div>
       }
       asChild
+      align="start"
     >
       {ccPairName || sourceMetadata.displayName}
     </CustomTooltip>
   );
   return (
-    <div className="my-auto">
+    <div className="my-auto w-full">
       {isLink ? (
         <Link
           className={mainSectionClassName}

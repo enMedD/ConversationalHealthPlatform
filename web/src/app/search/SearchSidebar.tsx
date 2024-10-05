@@ -6,6 +6,7 @@ import {
   MessageCircleMore,
   Headset,
   PanelLeftClose,
+  Command,
 } from "lucide-react";
 import { useContext } from "react";
 import Link from "next/link";
@@ -47,7 +48,7 @@ export const SearchSidebar = ({
             `}
         id="chat-sidebar"
       >
-        <div className="flex items-center gap-2 w-full relative justify-between px-4 pb-6">
+        <div className="flex items-center gap-2 w-full relative justify-between px-4 pb-4">
           <div className="flex">
             {workspaces && workspaces.workspace_name ? (
               <Image src={EnmeddLogo} alt="enmedd-logo" height={40} />
@@ -73,10 +74,15 @@ export const SearchSidebar = ({
                 <Separator className="mb-4" />
                 <Link
                   href="/search"
-                  className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer bg-primary text-white items-center gap-2`}
+                  className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer bg-primary text-white items-center gap-2 justify-between`}
                 >
-                  <Search size={16} className="shrink-0" />
-                  Search
+                  <div className="flex items-center gap-2">
+                    <Search size={16} className="shrink-0" />
+                    Search
+                  </div>
+                  <div className="flex items-center gap-1 font-normal">
+                    <Command size={14} />S
+                  </div>
                 </Link>
               </>
             )}
@@ -84,10 +90,16 @@ export const SearchSidebar = ({
               <>
                 <Link
                   href="/chat"
-                  className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer hover:bg-hover-light items-center gap-2`}
+                  className={`flex px-4 py-2 h-10 rounded-regular cursor-pointer hover:bg-hover-light items-center gap-2 justify-between`}
                 >
-                  <MessageCircleMore size={16} className="shrink-0" />
-                  Chat
+                  <div className="flex items-center gap-2">
+                    <MessageCircleMore size={16} className="shrink-0" />
+                    Chat
+                  </div>
+
+                  <div className="flex items-center gap-1 font-normal">
+                    <Command size={14} />D
+                  </div>
                 </Link>
                 {combinedSettings.featureFlags.explore_assistants && (
                   <Link

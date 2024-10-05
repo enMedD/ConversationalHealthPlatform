@@ -9,7 +9,7 @@ import { ConnectorTitle } from "@/components/admin/connectors/ConnectorTitle";
 import { getDocsProcessedPerMinute } from "@/lib/indexAttempt";
 import { useRouter } from "next/navigation";
 import { isCurrentlyDeleting } from "@/lib/documentDeletion";
-import { Pencil, CircleX, Check } from "lucide-react";
+import { Pencil, CircleX, Check, Search } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -21,6 +21,8 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { SearchInput } from "@/components/SearchInput";
 
 const NUM_IN_PAGE = 20;
 
@@ -90,7 +92,7 @@ function ClickableTableRow({
 }: {
   url: string;
   children: React.ReactNode;
-  [key: string]: any; // This allows for any additional props
+  [key: string]: any;
 }) {
   const router = useRouter();
 
@@ -115,38 +117,53 @@ export function CCPairIndexingStatusTable({
   ccPairsIndexingStatuses: ConnectorIndexingStatus<any, any>[];
 }) {
   const [page, setPage] = useState(1);
-  const ccPairsIndexingStatusesForPage = ccPairsIndexingStatuses.slice(
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const filteredStatuses = ccPairsIndexingStatuses.filter(
+    (status) =>
+      status.name!.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      status.cc_pair_id.toString().includes(searchTerm)
+  );
+
+  const ccPairsIndexingStatusesForPage = filteredStatuses.slice(
     NUM_IN_PAGE * (page - 1),
     NUM_IN_PAGE * page
   );
 
   return (
-    <Card>
-      <CardContent className="p-0">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Connector</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Is Public</TableHead>
-              <TableHead>Last Indexed</TableHead>
-              <TableHead>Docs Indexed</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {ccPairsIndexingStatusesForPage.map((ccPairsIndexingStatus) => {
-              return (
+    <div>
+      <div className="relative md:w-[500px] mb-6">
+        <SearchInput
+          placeholder="Search existing connectors..."
+          value={searchTerm}
+          onChange={setSearchTerm}
+        />
+      </div>
+
+      <Card>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Connector</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Is Public</TableHead>
+                <TableHead>Last Indexed</TableHead>
+                <TableHead>Docs Indexed</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {ccPairsIndexingStatusesForPage.map((ccPairsIndexingStatus) => (
                 <ClickableTableRow
                   key={ccPairsIndexingStatus.cc_pair_id}
                   url={`/admin/connector/${ccPairsIndexingStatus.cc_pair_id}`}
                 >
                   <TableCell>
                     <div className="flex items-center gap-2 my-auto">
-                      {/* dictates the padding of the whole row */}
                       <div className="p-4">
                         <Pencil size={16} />
                       </div>
-                      <div className="whitespace-normal break-all max-w-3xl">
+                      <div className="whitespace-normal break-all max-w-lg">
                         <ConnectorTitle
                           connector={ccPairsIndexingStatus.connector}
                           ccPairId={ccPairsIndexingStatus.cc_pair_id}
@@ -172,37 +189,36 @@ export function CCPairIndexingStatusTable({
                   </TableCell>
                   <TableCell>{ccPairsIndexingStatus.docs_indexed}</TableCell>
                 </ClickableTableRow>
-              );
-            })}
-            <TableRow>
-              <TableCell colSpan={5}>
-                Total document indexed:{" "}
-                {getOverallTotalDocs(ccPairsIndexingStatusesForPage) || 0}
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
-        {ccPairsIndexingStatuses.length > NUM_IN_PAGE && (
-          <div className="mt-3 flex">
-            <div className="mx-auto">
-              <PageSelector
-                totalPages={Math.ceil(
-                  ccPairsIndexingStatuses.length / NUM_IN_PAGE
-                )}
-                currentPage={page}
-                onPageChange={(newPage) => {
-                  setPage(newPage);
-                  window.scrollTo({
-                    top: 0,
-                    left: 0,
-                    behavior: "smooth",
-                  });
-                }}
-              />
+              ))}
+              <TableRow>
+                <TableCell colSpan={5}>
+                  Total documents indexed:{" "}
+                  {getOverallTotalDocs(ccPairsIndexingStatusesForPage) || 0}
+                </TableCell>
+              </TableRow>
+            </TableBody>
+          </Table>
+
+          {filteredStatuses.length > NUM_IN_PAGE && (
+            <div className="mt-3 flex">
+              <div className="mx-auto">
+                <PageSelector
+                  totalPages={Math.ceil(filteredStatuses.length / NUM_IN_PAGE)}
+                  currentPage={page}
+                  onPageChange={(newPage) => {
+                    setPage(newPage);
+                    window.scrollTo({
+                      top: 0,
+                      left: 0,
+                      behavior: "smooth",
+                    });
+                  }}
+                />
+              </div>
             </div>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+          )}
+        </CardContent>
+      </Card>
+    </div>
   );
 }

@@ -138,11 +138,11 @@ export function LLMProviderUpdateForm({
 
         if (!response.ok) {
           const errorMsg = (await response.json()).detail;
-          const fullErrorMsg = existingLlmProvider
-            ? `Failed to update provider: ${errorMsg}`
-            : `Failed to enable provider: ${errorMsg}`;
+          const action = existingLlmProvider ? "update" : "enable";
+          const fullErrorMsg = `Unable to ${action} the provider: ${errorMsg}`;
+
           toast({
-            title: "Error",
+            title: "Provider Action Failed",
             description: fullErrorMsg,
             variant: "destructive",
           });
@@ -159,9 +159,10 @@ export function LLMProviderUpdateForm({
           );
           if (!setDefaultResponse.ok) {
             const errorMsg = (await setDefaultResponse.json()).detail;
-            const fullErrorMsg = `Failed to set provider as default: ${errorMsg}`;
+            const fullErrorMsg = `Could not set "${newLlmProvider.name}" as the default provider: ${errorMsg}`;
+
             toast({
-              title: "Error",
+              title: "Default Provider Update Failed",
               description: fullErrorMsg,
               variant: "destructive",
             });
@@ -176,7 +177,7 @@ export function LLMProviderUpdateForm({
           ? "Provider updated successfully!"
           : "Provider enabled successfully!";
         toast({
-          title: "Success",
+          title: "Operation Successful",
           description: successMsg,
           variant: "success",
         });
@@ -316,12 +317,22 @@ export function LLMProviderUpdateForm({
                     );
                     if (!response.ok) {
                       const errorMsg = (await response.json()).detail;
-                      alert(`Failed to delete provider: ${errorMsg}`);
+                      toast({
+                        title: "Failed to delete provider",
+                        description: `Error details: ${errorMsg}`,
+                        variant: "destructive",
+                      });
                       return;
                     }
 
                     mutate(LLM_PROVIDERS_ADMIN_URL);
                     onClose();
+                    toast({
+                      title: "Provider deleted",
+                      description:
+                        "The provider has been successfully deleted.",
+                      variant: "success",
+                    });
                   }}
                 >
                   <Trash size={16} /> Delete

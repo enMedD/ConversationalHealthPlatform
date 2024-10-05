@@ -1,3 +1,4 @@
+from typing import Optional
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -6,6 +7,8 @@ from enmedd.db.models import DocumentSet as DocumentSetDBModel
 from enmedd.server.documents.models import ConnectorCredentialPairDescriptor
 from enmedd.server.documents.models import ConnectorSnapshot
 from enmedd.server.documents.models import CredentialSnapshot
+from enmedd.server.models import MinimalTeamspaceSnapshot
+from enmedd.server.models import MinimalWorkspaceSnapshot
 
 
 class DocumentSetCreationRequest(BaseModel):
@@ -50,7 +53,7 @@ class DocumentSet(BaseModel):
     is_public: bool
     # For Private Document Sets, who should be able to access these
     users: list[UUID]
-    groups: list[int]
+    groups: Optional[list[MinimalTeamspaceSnapshot]]
 
     @classmethod
     def from_model(cls, document_set_model: DocumentSetDBModel) -> "DocumentSet":
@@ -74,11 +77,37 @@ class DocumentSet(BaseModel):
                     credential=CredentialSnapshot.from_credential_db_model(
                         cc_pair.credential
                     ),
+                    groups=[
+                        MinimalTeamspaceSnapshot(
+                            id=group.id,
+                            name=group.name,
+                            workspace=[
+                                MinimalWorkspaceSnapshot(
+                                    id=workspace.id,
+                                    workspace_name=workspace.workspace_name,
+                                )
+                                for workspace in group.workspace
+                            ],
+                        )
+                        for group in cc_pair.groups
+                    ],
                 )
                 for cc_pair in document_set_model.connector_credential_pairs
             ],
             is_up_to_date=document_set_model.is_up_to_date,
             is_public=document_set_model.is_public,
             users=[user.id for user in document_set_model.users],
-            groups=[group.id for group in document_set_model.groups],
+            groups=[
+                MinimalTeamspaceSnapshot(
+                    id=teamspace.id,
+                    name=teamspace.name,
+                    workspace=[
+                        MinimalWorkspaceSnapshot(
+                            id=workspace.id, workspace_name=workspace.workspace_name
+                        )
+                        for workspace in teamspace.workspace
+                    ],
+                )
+                for teamspace in document_set_model.groups
+            ],
         )

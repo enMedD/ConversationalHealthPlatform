@@ -22,7 +22,6 @@ import { usePublicCredentials } from "@/lib/hooks";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { Card, CardContent } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
-import { useToast } from "@/hooks/use-toast";
 
 interface GmailConnectorManagementProps {
   gmailPublicCredential?: Credential<GmailCredentialJson>;
@@ -138,8 +137,6 @@ const Main = () => {
     refreshCredentials,
   } = usePublicCredentials();
 
-  const { toast } = useToast();
-
   const appCredentialSuccessfullyFetched =
     appCredentialData ||
     (isAppCredentialError && isAppCredentialError.status === 404);
@@ -254,12 +251,14 @@ const Main = () => {
 
 export default function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <BackButton />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <BackButton />
 
-      <AdminPageTitle icon={<GmailIcon size={32} />} title="Gmail" />
+        <AdminPageTitle icon={<GmailIcon size={32} />} title="Gmail" />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

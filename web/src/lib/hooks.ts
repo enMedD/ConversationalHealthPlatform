@@ -13,7 +13,7 @@ import { destructureValue } from "./llm/utils";
 import { ChatSession } from "@/app/chat/interfaces";
 import { UsersResponse } from "./users/interfaces";
 import { usePaidEnterpriseFeaturesEnabled } from "@/components/settings/usePaidEnterpriseFeaturesEnabled";
-import { DateRangePickerValue } from "@tremor/react";
+import { DateRange } from "react-day-picker";
 
 const CREDENTIAL_URL = "/api/manage/admin/credential";
 
@@ -80,15 +80,13 @@ export const useConnectorCredentialIndexingStatus = (
   };
 };
 
-export const useTimeRange = (initialValue?: DateRangePickerValue) => {
-  return useState<DateRangePickerValue | null>(null);
+export const useTimeRange = (initialValue?: DateRange) => {
+  return useState<DateRange | null>(null);
 };
 
 export interface FilterManager {
-  timeRange: DateRangePickerValue | null;
-  setTimeRange: React.Dispatch<
-    React.SetStateAction<DateRangePickerValue | null>
-  >;
+  timeRange: DateRange | null;
+  setTimeRange: React.Dispatch<React.SetStateAction<DateRange | null>>;
   selectedSources: SourceMetadata[];
   setSelectedSources: React.Dispatch<React.SetStateAction<SourceMetadata[]>>;
   selectedDocumentSets: string[];

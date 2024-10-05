@@ -59,6 +59,7 @@ const EditRow = ({ documentSet }: { documentSet: DocumentSet }) => {
             {documentSet.name}
           </Button>
         }
+        asChild
       >
         <div className="flex gap-1">
           <InfoIcon /> Cannot update while syncing! Wait for the sync to finish,
@@ -178,15 +179,15 @@ const DocumentSetTable = ({
                             );
                             if (response.ok) {
                               toast({
-                                title: "Success",
-                                description: `Document set "${documentSet.name}" scheduled for deletion`,
+                                title: "Deletion Scheduled",
+                                description: `The document set "${documentSet.name}" has been successfully scheduled for deletion.`,
                                 variant: "success",
                               });
                             } else {
                               const errorMsg = (await response.json()).detail;
                               toast({
-                                title: "Error",
-                                description: `Failed to schedule document set for deletion - ${errorMsg}`,
+                                title: "Deletion Failed",
+                                description: `Unable to schedule deletion for "${documentSet.name}": ${errorMsg}`,
                                 variant: "destructive",
                               });
                             }
@@ -272,10 +273,12 @@ const Main = () => {
 
 const Page = () => {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle icon={<Bookmark size={32} />} title="Document Sets" />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle icon={<Bookmark size={32} />} title="Document Sets" />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 };

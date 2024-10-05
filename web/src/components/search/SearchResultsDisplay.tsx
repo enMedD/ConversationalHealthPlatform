@@ -125,12 +125,10 @@ export const SearchResultsDisplay = ({
     searchResponse.suggestedFlowType === FlowType.QUESTION_ANSWER ||
     defaultOverrides.forceDisplayQA;
 
-  /* console.log(documents[0].document_id); */
-  /* console.log(availableDocumentSets[0].cc_pair_descriptors[0].name); */
   console.log(selectedDocumentIds);
 
   return (
-    <div className="px-2">
+    <div className="px-2 overflow-y-auto h-full">
       {shouldDisplayQA && (
         <Card className="p-4 relative">
           <CardHeader className="border-b p-0 pb-4">
@@ -189,6 +187,7 @@ export const SearchResultsDisplay = ({
                   documentRank={ind + 1}
                   messageId={messageId}
                   isSelected={selectedDocumentIds.has(document.document_id)}
+                  availableDocumentSets={availableDocumentSets}
                 />
               </div>
             ))}

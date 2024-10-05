@@ -6,9 +6,11 @@ import { CustomTooltip } from "./CustomTooltip";
 export function CopyButton({
   content,
   onClick,
+  smallIcon,
 }: {
   content?: string;
   onClick?: () => void;
+  smallIcon?: boolean;
 }) {
   const [isCopyClicked, setIsCopyClicked] = useState(false);
 
@@ -26,11 +28,13 @@ export function CopyButton({
             setTimeout(() => setIsCopyClicked(false), 3000);
           }}
           variant="ghost"
-          size="smallIcon"
+          size={smallIcon ? "smallIcon" : "icon"}
         >
           {isCopyClicked ? <Check size={16} /> : <Copy size={16} />}
         </Button>
       }
+      side="bottom"
+      asChild
     >
       {isCopyClicked ? "Copied" : "Copy"}
     </CustomTooltip>

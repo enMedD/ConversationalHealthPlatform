@@ -1,11 +1,15 @@
 import "./globals.css";
 import { Inter as FontSans } from "next/font/google";
-import { getCombinedSettings } from "@/components/settings/lib";
+import {
+  fetchSettingsSS,
+  getCombinedSettings,
+} from "@/components/settings/lib";
 import { CUSTOM_ANALYTICS_ENABLED } from "@/lib/constants";
 import { SettingsProvider } from "@/components/settings/SettingsProvider";
 import { Metadata } from "next";
 import { buildClientUrl } from "@/lib/utilsSS";
 import { Toaster } from "@/components/ui/toaster";
+import PageSwitcher from "@/components/PageSwitcher";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -39,7 +43,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const combinedSettings = await getCombinedSettings({});
+  const combinedSettings = await fetchSettingsSS();
 
   return (
     <html lang="en">
@@ -61,6 +65,7 @@ export default async function RootLayout({
         <SettingsProvider settings={combinedSettings}>
           {children}
           <Toaster />
+          <PageSwitcher />
         </SettingsProvider>
       </body>
     </html>

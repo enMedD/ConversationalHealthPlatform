@@ -93,16 +93,17 @@ function Main() {
       .then(() => {
         setModalIsOpen(false);
         toast({
-          title: "Success",
-          description: "Token rate limit created!",
+          title: "Token Rate Limit Created",
+          description:
+            "The token rate limit has been successfully established.",
           variant: "success",
         });
         updateTable(target_scope);
       })
       .catch((error) => {
         toast({
-          title: "Error",
-          description: error.message,
+          title: "Creation Failed",
+          description: `Unable to create token rate limit: ${error.message}`,
           variant: "destructive",
         });
       });
@@ -222,10 +223,12 @@ function Main() {
 
 export default function Page() {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle title="Token Rate Limits" icon={<Shield size={32} />} />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle title="Token Rate Limits" icon={<Shield size={32} />} />
 
-      <Main />
+        <Main />
+      </div>
     </div>
   );
 }

@@ -3,8 +3,6 @@ import InvitedUserTable from "@/components/admin/users/InvitedUserTable";
 import SignedUpUserTable from "@/components/admin/users/SignedUpUserTable";
 import { SearchBar } from "@/components/search/SearchBar";
 import { useState } from "react";
-import { FiPlusSquare } from "react-icons/fi";
-
 import { LoadingAnimation } from "@/components/Loading";
 import { AdminPageTitle } from "@/components/admin/Title";
 import { UsersIcon } from "@/components/icons/icons";
@@ -14,16 +12,10 @@ import { ErrorCallout } from "@/components/ErrorCallout";
 import { HidableSection } from "@/app/admin/assistants/HidableSection";
 import BulkAdd from "@/components/admin/users/BulkAdd";
 import { UsersResponse } from "@/lib/users/interfaces";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { useToast } from "@/hooks/use-toast";
+
+import { AllUsers } from "./AllUsers";
+import { PendingInvites } from "./PedingInvites";
+import { Separator } from "@/components/ui/separator";
 
 const ValidDomainsDisplay = ({ validDomains }: { validDomains: string[] }) => {
   if (!validDomains.length) {
@@ -104,7 +96,7 @@ const UsersTables = ({ q }: { q: string }) => {
 
   return (
     <>
-      <HidableSection sectionTitle="Invited Users" defaultOpen>
+      <HidableSection sectionTitle="Invited Users">
         {invited.length > 0 ? (
           finalInvited.length > 0 ? (
             <InvitedUserTable
@@ -136,13 +128,12 @@ const UsersTables = ({ q }: { q: string }) => {
 };
 
 const SearchableTables = () => {
-  const { toast } = useToast();
   const [query, setQuery] = useState("");
   const [q, setQ] = useState("");
 
   return (
-    <div>
-      <div className="flex flex-col gap-y-4">
+    <div className="pb-20 w-full">
+      {/* <div className="flex flex-col gap-y-4">
         <div className="flex flex-col gap-4 md:flex-row">
           <AddUserButton />
           <div className="flex-grow">
@@ -154,61 +145,22 @@ const SearchableTables = () => {
           </div>
         </div>
         <UsersTables q={q} />
-      </div>
-    </div>
-  );
-};
+      </div> */}
 
-const AddUserButton = () => {
-  const [modal, setModal] = useState(false);
-  const { toast } = useToast();
-  const onSuccess = () => {
-    mutate(
-      (key) => typeof key === "string" && key.startsWith("/api/manage/users")
-    );
-    setModal(false);
-    toast({
-      title: "Success",
-      description: "Users invited!",
-      variant: "success",
-    });
-  };
-  const onFailure = async (res: Response) => {
-    const error = (await res.json()).detail;
-    toast({
-      title: "Error",
-      description: `Failed to invite users - ${error}`,
-      variant: "destructive",
-    });
-  };
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button variant="outline">
-          <FiPlusSquare className="mr-2" />
-          Invite Users
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-full w-1/2">
-        <DialogHeader>
-          <DialogTitle>Bulk Add Users</DialogTitle>
-        </DialogHeader>
-        <div className="flex flex-col gap-y-3 pt-4">
-          <Label>
-            Add the email addresses to import, separated by whitespaces.
-          </Label>
-          <BulkAdd onSuccess={onSuccess} onFailure={onFailure} />
-        </div>
-      </DialogContent>
-    </Dialog>
+      <AllUsers q={q} />
+      <Separator className="my-10" />
+      <PendingInvites q={q} />
+    </div>
   );
 };
 
 const Page = () => {
   return (
-    <div className="py-24 md:py-32 lg:pt-16">
-      <AdminPageTitle title="Manage Users" icon={<UsersIcon size={32} />} />
-      <SearchableTables />
+    <div className="h-full w-full overflow-y-auto">
+      <div className="container">
+        <AdminPageTitle title="Manage Users" icon={<UsersIcon size={32} />} />
+        <SearchableTables />
+      </div>
     </div>
   );
 };
