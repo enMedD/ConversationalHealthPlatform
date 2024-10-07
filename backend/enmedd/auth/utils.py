@@ -92,7 +92,7 @@ def send_user_verification_email(
             server.send_message(message)
         print(f"Email verification sent to {to_email}")
     except Exception as e:
-        print(f"Failed to send password reset email: {str(e)}")
+        print(f"Failed to send user verification email: {str(e)}")
 
 
 def send_2fa_email(to_email: str, subject: str, body: str, mail_from: str = EMAIL_FROM):
