@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from ee.enmedd.server.workspace.models import AnalyticsScriptUpload
 from enmedd.configs.constants import FileOrigin
+from enmedd.db.models import User
 from enmedd.dynamic_configs.factory import get_dynamic_config_store
 from enmedd.dynamic_configs.interface import ConfigNotFoundError
 from enmedd.file_store.file_store import get_default_file_store
@@ -103,17 +104,14 @@ def upload_logo(
     return True
 
 
-def upload_profile(
-    db_session: Session,
-    file: UploadFile | str,
-) -> bool:
+def upload_profile(db_session: Session, file: UploadFile | str, user: User) -> bool:
     content: IO[Any]
 
     if isinstance(file, str):
-        logger.info(f"Uploading logo from local path {file}")
+        logger.info(f"Uploading profile from local path {file}")
         if not os.path.isfile(file) or not is_valid_file_type(file):
             logger.error(
-                "Invalid file type- only .png, .jpg, and .jpeg files are allowed"
+                "Invalid file type - only .png, .jpg, and .jpeg files are allowed"
             )
             return False
 
@@ -124,19 +122,21 @@ def upload_profile(
         file_type = guess_file_type(file)
 
     else:
-        logger.info("Uploading logo from uploaded file")
+        logger.info("Uploading profile from uploaded file")
         if not file.filename or not is_valid_file_type(file.filename):
             raise HTTPException(
                 status_code=400,
-                detail="Invalid file type- only .png, .jpg, and .jpeg files are allowed",
+                detail="Invalid file type - only .png, .jpg, and .jpeg files are allowed",
             )
         content = file.file
         display_name = file.filename
         file_type = file.content_type or "image/jpeg"
 
+    file_name = f"{user.id}/{_PROFILE_FILENAME}"
+
     file_store = get_default_file_store(db_session)
     file_store.save_file(
-        file_name=_PROFILE_FILENAME,
+        file_name=file_name,
         content=content,
         display_name=display_name,
         file_origin=FileOrigin.OTHER,

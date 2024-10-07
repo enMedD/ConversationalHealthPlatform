@@ -381,22 +381,43 @@ async def get_user_role(user: User = Depends(current_user)) -> UserRoleResponse:
 def put_profile(
     file: UploadFile,
     db_session: Session = Depends(get_session),
-    _: User | None = Depends(current_user),
+    current_user: User = Depends(current_user),
 ) -> None:
-    upload_profile(file=file, db_session=db_session)
+    upload_profile(file=file, db_session=db_session, user=current_user)
 
 
 @router.get("/me/profile")
 def fetch_profile(
     db_session: Session = Depends(get_session),
-    _: User | None = Depends(current_user),  # Ensure that the user is authenticated
+    current_user: User = Depends(current_user),
 ) -> Response:
     try:
+        file_path = f"{current_user.id}/{_PROFILE_FILENAME}"
+
         file_store = get_default_file_store(db_session)
-        file_io = file_store.read_file(_PROFILE_FILENAME, mode="b")
+        file_io = file_store.read_file(file_path, mode="b")
+
         return Response(content=file_io.read(), media_type="image/jpeg")
     except Exception:
-        raise HTTPException(status_code=404, detail="No logo file found")
+        raise HTTPException(status_code=404, detail="No profile file found")
+
+
+@router.delete("/me/profile")
+def remove_profile(
+    db_session: Session = Depends(get_session),
+    current_user: User = Depends(current_user),  # Get the current user
+) -> None:
+    try:
+        file_name = f"{current_user.id}/{_PROFILE_FILENAME}"
+
+        file_store = get_default_file_store(db_session)
+
+        file_store.delete_file(file_name)
+
+        return {"detail": "Profile picture removed successfully."}
+    except Exception as e:
+        logger.error(f"Error removing profile picture: {str(e)}")
+        raise HTTPException(status_code=404, detail="Profile picture not found.")
 
 
 @router.get("/me")

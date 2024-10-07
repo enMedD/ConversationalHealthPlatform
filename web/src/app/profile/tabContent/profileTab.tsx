@@ -26,7 +26,7 @@ export default function ProfileTab({
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
 
-  // Fetch profile image on mount
+  // TODO: Update instantly when user profile changes
   useEffect(() => {
     const fetchProfileImage = async () => {
       try {
