@@ -20,9 +20,6 @@ from sqlalchemy import update
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Session
 
-from ee.enmedd.db.api_key import is_api_key_email_address
-from ee.enmedd.server.workspace.store import _PROFILE_FILENAME
-from ee.enmedd.server.workspace.store import upload_profile
 from enmedd.auth.invited_users import generate_invite_email
 from enmedd.auth.invited_users import get_invited_users
 from enmedd.auth.invited_users import send_invite_user_email
@@ -41,6 +38,7 @@ from enmedd.configs.app_configs import AUTH_TYPE
 from enmedd.configs.app_configs import VALID_EMAIL_DOMAINS
 from enmedd.configs.app_configs import WEB_DOMAIN
 from enmedd.configs.constants import AuthType
+from enmedd.db.api_key import is_api_key_email_address
 from enmedd.db.engine import get_async_session
 from enmedd.db.engine import get_session
 from enmedd.db.models import AccessToken
@@ -60,6 +58,8 @@ from enmedd.server.manage.models import UserRoleResponse
 from enmedd.server.models import FullUserSnapshot
 from enmedd.server.models import InvitedUserSnapshot
 from enmedd.server.models import MinimalUserSnapshot
+from enmedd.server.workspace.store import _PROFILE_FILENAME
+from enmedd.server.workspace.store import upload_profile
 from enmedd.utils.logger import setup_logger
 
 logger = setup_logger()

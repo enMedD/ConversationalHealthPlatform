@@ -105,3 +105,29 @@ def check_router_auth(
             raise RuntimeError(
                 f"Did not find current_user or current_admin_user dependency in route - {route}"
             )
+
+
+# EE
+
+EE_PUBLIC_ENDPOINT_SPECS = PUBLIC_ENDPOINT_SPECS + [
+    # needs to be accessible prior to user login
+    ("/workspace", {"GET"}),
+    ("/workspace/logo", {"GET"}),
+    ("/workspace/custom-analytics-script", {"GET"}),
+    # oidc
+    ("/auth/oidc/authorize", {"GET"}),
+    ("/auth/oidc/callback", {"GET"}),
+    # saml
+    ("/auth/saml/authorize", {"GET"}),
+    ("/auth/saml/callback", {"POST"}),
+    ("/auth/saml/logout", {"POST"}),
+]
+
+
+def check_ee_router_auth(
+    application: FastAPI,
+    public_endpoint_specs: list[tuple[str, set[str]]] = EE_PUBLIC_ENDPOINT_SPECS,
+) -> None:
+    # similar to the open source version of this function, but checking for the EE-only
+    # endpoints as well
+    check_router_auth(application, public_endpoint_specs)

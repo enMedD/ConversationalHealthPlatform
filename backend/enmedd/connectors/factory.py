@@ -8,6 +8,8 @@ from sqlalchemy.orm import Session
 from enmedd.configs.constants import DocumentSource
 from enmedd.connectors.blob.connector import BlobStorageConnector
 from enmedd.connectors.confluence.connector import ConfluenceConnector
+from enmedd.connectors.confluence.perm_sync import confluence_update_db_group
+from enmedd.connectors.confluence.perm_sync import confluence_update_index_acl
 from enmedd.connectors.dropbox.connector import DropboxConnector
 from enmedd.connectors.file.connector import LocalFileConnector
 from enmedd.connectors.github.connector import GithubConnector
@@ -110,3 +112,8 @@ def instantiate_connector(
         backend_update_credential_json(credential, new_credentials, db_session)
 
     return connector
+
+
+CONNECTOR_PERMISSION_FUNC_MAP = {
+    DocumentSource.CONFLUENCE: (confluence_update_db_group, confluence_update_index_acl)
+}

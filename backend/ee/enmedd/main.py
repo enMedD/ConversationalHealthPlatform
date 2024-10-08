@@ -1,41 +1,41 @@
 from fastapi import FastAPI
 from httpx_oauth.clients.openid import OpenID
 
-from ee.enmedd.configs.app_configs import OPENID_CONFIG_URL
-from ee.enmedd.server.analytics.api import router as analytics_router
-from ee.enmedd.server.api_key.api import router as api_key_router
-from ee.enmedd.server.auth_check import check_ee_router_auth
-from ee.enmedd.server.query_and_chat.chat_backend import (
-    router as chat_router,
-)
-from ee.enmedd.server.query_and_chat.query_backend import (
-    basic_router as query_router,
-)
-from ee.enmedd.server.query_history.api import router as query_history_router
-from ee.enmedd.server.reporting.usage_export_api import router as usage_export_router
-from ee.enmedd.server.saml import router as saml_router
-from ee.enmedd.server.seeding import seed_db
-from ee.enmedd.server.teamspace.api import router as teamspace_router
-from ee.enmedd.server.token_rate_limits.api import (
-    router as token_rate_limit_settings_router,
-)
-from ee.enmedd.server.workspace.api import (
-    admin_router as workspaces_admin_router,
-)
-from ee.enmedd.server.workspace.api import (
-    basic_router as workspaces_router,
-)
 from ee.enmedd.utils.encryption import test_encryption
 from enmedd.auth.users import auth_backend
 from enmedd.auth.users import fastapi_users
 from enmedd.configs.app_configs import AUTH_TYPE
 from enmedd.configs.app_configs import OAUTH_CLIENT_ID
 from enmedd.configs.app_configs import OAUTH_CLIENT_SECRET
+from enmedd.configs.app_configs import OPENID_CONFIG_URL
 from enmedd.configs.app_configs import USER_AUTH_SECRET
 from enmedd.configs.app_configs import WEB_DOMAIN
 from enmedd.configs.constants import AuthType
 from enmedd.main import get_application as get_application_base
 from enmedd.main import include_router_with_global_prefix_prepended
+from enmedd.server.analytics.api import router as analytics_router
+from enmedd.server.api_key.api import router as api_key_router
+from enmedd.server.auth_check import check_ee_router_auth
+from enmedd.server.query_and_chat.chat_backend import (
+    router as chat_router,
+)
+from enmedd.server.query_and_chat.query_backend import (
+    basic_router as query_router,
+)
+from enmedd.server.query_history.api import router as query_history_router
+from enmedd.server.reporting.usage_export_api import router as usage_export_router
+from enmedd.server.saml import router as saml_router
+from enmedd.server.seeding import seed_db
+from enmedd.server.teamspace.api import router as teamspace_router
+from enmedd.server.token_rate_limits.api import (
+    router as token_rate_limit_settings_router,
+)
+from enmedd.server.workspace.api import (
+    admin_router as workspaces_admin_router,
+)
+from enmedd.server.workspace.api import (
+    basic_router as workspaces_router,
+)
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.variable_functionality import global_version
 

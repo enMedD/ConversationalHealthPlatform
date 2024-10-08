@@ -12,6 +12,7 @@ from enmedd.db.enums import ChatSessionSharedStatus
 from enmedd.file_store.models import FileDescriptor
 from enmedd.llm.override_models import LLMOverride
 from enmedd.llm.override_models import PromptOverride
+from enmedd.search.enums import SearchType
 from enmedd.search.models import BaseFilters
 from enmedd.search.models import ChunkContext
 from enmedd.search.models import RetrievalDetails
@@ -228,3 +229,59 @@ class AdminSearchResponse(BaseModel):
 # TODO: replace the name here
 class EnmeddAnswer(BaseModel):
     answer: str | None
+
+
+# EE models
+class DocumentSearchRequest(ChunkContext):
+    message: str
+    search_type: SearchType
+    retrieval_options: RetrievalDetails
+    recency_bias_multiplier: float = 1.0
+    # This is to forcibly skip (or run) the step, if None it uses the system defaults
+    skip_rerank: bool | None = None
+    skip_llm_chunk_filter: bool | None = None
+
+
+class BasicCreateChatMessageRequest(ChunkContext):
+    """Before creating messages, be sure to create a chat_session and get an id
+    Note, for simplicity this option only allows for a single linear chain of messages
+    """
+
+    chat_session_id: int
+    # New message contents
+    message: str
+    # Defaults to using retrieval with no additional filters
+    retrieval_options: RetrievalDetails | None = None
+    # Allows the caller to specify the exact search query they want to use
+    # will disable Query Rewording if specified
+    query_override: str | None = None
+    # If search_doc_ids provided, then retrieval options are unused
+    search_doc_ids: list[int] | None = None
+
+
+class SimpleDoc(BaseModel):
+    semantic_identifier: str
+    link: str | None
+    blurb: str
+    match_highlights: list[str]
+    source_type: DocumentSource
+
+
+class ChatBasicResponse(BaseModel):
+    # This is built piece by piece, any of these can be None as the flow could break
+    answer: str | None = None
+    answer_citationless: str | None = None
+    simple_search_docs: list[SimpleDoc] | None = None
+    error_msg: str | None = None
+    message_id: int | None = None
+
+
+class ChatSessionDetails(BaseModel):
+    id: int
+    description: str
+    assistant_id: int
+    time_created: str
+    shared_status: ChatSessionSharedStatus
+    folder_id: int | None
+    current_alternate_model: str | None = None
+    groups: list[MinimalTeamspaceSnapshot] | None

@@ -23,6 +23,7 @@ from fastapi_users.openapi import OpenAPIResponseType
 from fastapi_users_db_sqlalchemy import SQLAlchemyUserDatabase
 from sqlalchemy.orm import Session
 
+from enmedd.auth.api_key import get_hashed_api_key_from_request
 from enmedd.auth.invited_users import get_invited_users
 from enmedd.auth.schemas import UserCreate
 from enmedd.auth.schemas import UserRole
@@ -41,6 +42,7 @@ from enmedd.configs.constants import API_KEY_DUMMY_EMAIL_DOMAIN
 from enmedd.configs.constants import API_KEY_PREFIX
 from enmedd.configs.constants import AuthType
 from enmedd.configs.constants import UNNAMED_KEY_PLACEHOLDER
+from enmedd.db.api_key import fetch_user_for_api_key
 from enmedd.db.auth import get_access_token_db
 from enmedd.db.auth import get_default_admin_user_emails
 from enmedd.db.auth import get_user_count
@@ -48,7 +50,9 @@ from enmedd.db.auth import get_user_db
 from enmedd.db.engine import get_session
 from enmedd.db.models import AccessToken
 from enmedd.db.models import User
+from enmedd.db.saml import get_saml_account
 from enmedd.utils.logger import setup_logger
+from enmedd.utils.secrets import extract_hashed_cookie
 from enmedd.utils.telemetry import optional_telemetry
 from enmedd.utils.telemetry import RecordType
 from enmedd.utils.variable_functionality import (
@@ -269,8 +273,20 @@ async def optional_user_(
     user: User | None,
     db_session: Session,
 ) -> User | None:
-    """NOTE: `request` and `db_session` are not used here, but are included
-    for the EE version of this function."""
+    # Check if the user has a session cookie from SAML
+    if AUTH_TYPE == AuthType.SAML:
+        saved_cookie = extract_hashed_cookie(request)
+
+        if saved_cookie:
+            saml_account = get_saml_account(cookie=saved_cookie, db_session=db_session)
+            user = saml_account.user if saml_account else None
+
+    # check if an API key is present
+    if user is None:
+        hashed_api_key = get_hashed_api_key_from_request(request)
+        if hashed_api_key:
+            user = fetch_user_for_api_key(hashed_api_key, db_session)
+
     return user
 
 
@@ -323,3 +339,24 @@ async def current_admin_user(user: User | None = Depends(current_user)) -> User 
             detail="Access denied. User is not an admin.",
         )
     return user
+
+
+def api_key_dep(request: Request, db_session: Session = Depends(get_session)) -> User:
+    hashed_api_key = get_hashed_api_key_from_request(request)
+    if not hashed_api_key:
+        raise HTTPException(status_code=401, detail="Missing API key")
+
+    if hashed_api_key:
+        user = fetch_user_for_api_key(hashed_api_key, db_session)
+
+    if user is None:
+        raise HTTPException(status_code=401, detail="Invalid API key")
+
+    return user
+
+
+# def get_default_admin_user_emails_() -> list[str]:
+#     seed_config = get_seed_config()
+#     if seed_config and seed_config.admin_user_emails:
+#         return seed_config.admin_user_emails
+#     return []

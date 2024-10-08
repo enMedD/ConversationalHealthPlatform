@@ -5,14 +5,14 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.orm import joinedload
 from sqlalchemy.orm import Session
 
-from ee.enmedd.server.workspace.models import InstanceSubscriptionPlan
-from ee.enmedd.server.workspace.models import WorkspaceCreate
-from ee.enmedd.server.workspace.models import WorkspaceUpdate
 from enmedd.auth.schemas import UserRole
 from enmedd.db.models import Instance
 from enmedd.db.models import User
 from enmedd.db.models import Workspace
 from enmedd.db.models import Workspace__Users
+from enmedd.server.workspace.models import InstanceSubscriptionPlan
+from enmedd.server.workspace.models import WorkspaceCreate
+from enmedd.server.workspace.models import WorkspaceUpdate
 
 
 def _add_user__workspace_relationships__no_commit(

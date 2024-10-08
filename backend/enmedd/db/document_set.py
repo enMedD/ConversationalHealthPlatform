@@ -15,6 +15,7 @@ from enmedd.db.models import DocumentByConnectorCredentialPair
 from enmedd.db.models import DocumentSet as DocumentSetDBModel
 from enmedd.db.models import DocumentSet__ConnectorCredentialPair
 from enmedd.db.models import DocumentSet__Teamspace
+from enmedd.db.models import DocumentSet__User
 from enmedd.server.features.document_set.models import DocumentSetCreationRequest
 from enmedd.server.features.document_set.models import DocumentSetUpdateRequest
 from enmedd.utils.variable_functionality import fetch_versioned_implementation
@@ -46,7 +47,13 @@ def _mark_document_set_cc_pairs_as_outdated__no_commit(
 def delete_document_set_privacy__no_commit(
     document_set_id: int, db_session: Session
 ) -> None:
-    """No private document sets in enMedD AI"""
+    db_session.query(DocumentSet__User).filter(
+        DocumentSet__User.document_set_id == document_set_id
+    ).delete(synchronize_session="fetch")
+
+    db_session.query(DocumentSet__Teamspace).filter(
+        DocumentSet__Teamspace.document_set_id == document_set_id
+    ).delete(synchronize_session="fetch")
 
 
 def get_document_set_by_id(
@@ -81,9 +88,26 @@ def make_doc_set_private(
     team_ids: list[int] | None,
     db_session: Session,
 ) -> None:
-    # May cause error if someone switches down to MIT from EE
-    if user_ids or team_ids:
-        raise NotImplementedError("enMedD AI does not support private Document Sets")
+    db_session.query(DocumentSet__User).filter(
+        DocumentSet__User.document_set_id == document_set_id
+    ).delete(synchronize_session="fetch")
+    db_session.query(DocumentSet__Teamspace).filter(
+        DocumentSet__Teamspace.document_set_id == document_set_id
+    ).delete(synchronize_session="fetch")
+
+    if user_ids:
+        for user_uuid in user_ids:
+            db_session.add(
+                DocumentSet__User(document_set_id=document_set_id, user_id=user_uuid)
+            )
+
+    if team_ids:
+        for team_id in team_ids:
+            db_session.add(
+                DocumentSet__Teamspace(
+                    document_set_id=document_set_id, teamspace_id=team_id
+                )
+            )
 
 
 def insert_document_set(

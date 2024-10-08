@@ -37,21 +37,26 @@ def make_assistant_private(
     team_ids: list[int] | None,
     db_session: Session,
 ) -> None:
-    if user_ids is not None:
-        db_session.query(Assistant__User).filter(
-            Assistant__User.assistant_id == assistant_id
-        ).delete(synchronize_session="fetch")
+    db_session.query(Assistant__User).filter(
+        Assistant__User.assistant_id == assistant_id
+    ).delete(synchronize_session="fetch")
+    db_session.query(Assistant__Teamspace).filter(
+        Assistant__Teamspace.assistant_id == assistant_id
+    ).delete(synchronize_session="fetch")
 
+    if user_ids:
         for user_uuid in user_ids:
             db_session.add(
                 Assistant__User(assistant_id=assistant_id, user_id=user_uuid)
             )
 
-        db_session.commit()
-
-    # May cause error if someone switches down to MIT from EE
     if team_ids:
-        raise NotImplementedError("enMedD AI does not support private Assistants")
+        for team_id in team_ids:
+            db_session.add(
+                Assistant__Teamspace(assistant_id=assistant_id, teamspace_id=team_id)
+            )
+
+    db_session.commit()
 
 
 def create_update_assistant(

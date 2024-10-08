@@ -2,6 +2,7 @@ from typing import cast
 
 from fastapi import HTTPException
 from sqlalchemy import and_
+from sqlalchemy import distinct
 from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import aliased
@@ -272,3 +273,11 @@ def create_initial_default_connector(db_session: Session) -> None:
     )
     db_session.add(connector)
     db_session.commit()
+
+
+def fetch_sources_with_connectors(db_session: Session) -> list[DocumentSource]:
+    sources = db_session.query(distinct(Connector.source)).all()  # type: ignore
+
+    document_sources = [source[0] for source in sources]
+
+    return document_sources

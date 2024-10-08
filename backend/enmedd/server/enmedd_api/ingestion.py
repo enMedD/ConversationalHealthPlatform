@@ -3,7 +3,7 @@ from fastapi import Depends
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 
-from ee.enmedd.auth.users import api_key_dep
+from enmedd.auth.users import api_key_dep
 from enmedd.configs.constants import DocumentSource
 from enmedd.connectors.models import Document
 from enmedd.connectors.models import IndexAttemptMetadata

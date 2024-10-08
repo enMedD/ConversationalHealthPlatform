@@ -11,13 +11,13 @@ from sqlalchemy import func
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from ee.enmedd.db.token_limit import fetch_all_global_token_rate_limits
 from enmedd.auth.users import current_user
 from enmedd.db.engine import get_session_context_manager
 from enmedd.db.models import ChatMessage
 from enmedd.db.models import ChatSession
 from enmedd.db.models import TokenRateLimit
 from enmedd.db.models import User
+from enmedd.db.token_limit import fetch_all_global_token_rate_limits
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.variable_functionality import fetch_versioned_implementation
 
