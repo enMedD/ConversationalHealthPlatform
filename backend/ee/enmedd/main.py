@@ -1,7 +1,6 @@
 from fastapi import FastAPI
 from httpx_oauth.clients.openid import OpenID
 
-from ee.enmedd.utils.encryption import test_encryption
 from enmedd.auth.users import auth_backend
 from enmedd.auth.users import fastapi_users
 from enmedd.configs.app_configs import AUTH_TYPE
@@ -36,6 +35,7 @@ from enmedd.server.workspace.api import (
 from enmedd.server.workspace.api import (
     basic_router as workspaces_router,
 )
+from enmedd.utils.encryption import test_encryption
 from enmedd.utils.logger import setup_logger
 from enmedd.utils.variable_functionality import global_version
 
