@@ -1,3 +1,5 @@
+"use client";
+
 import { Form, Formik } from "formik";
 import * as Yup from "yup";
 import {
@@ -18,11 +20,12 @@ import { useState } from "react";
 import { DocumentSets } from "./DocumentSets";
 import { Assistants } from "./Assistants";
 import { Input } from "@/components/ui/input";
+import { errorHandlingFetcher } from "@/lib/fetcher";
 
 interface TeamspaceCreationFormProps {
   onClose: () => void;
   users: User[];
-  ccPairs: ConnectorIndexingStatus<any, any>[];
+  ccPairs: ConnectorIndexingStatus<any, any>[] | undefined;
   existingTeamspace?: Teamspace;
   assistants: Assistant[];
   documentSets: DocumentSet[] | undefined;
@@ -37,8 +40,44 @@ export const TeamspaceCreationForm = ({
   documentSets,
 }: TeamspaceCreationFormProps) => {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [tokenBudget, setTokenBudget] = useState(0);
+  const [periodHours, setPeriodHours] = useState(0);
   const isUpdate = existingTeamspace !== undefined;
   const { toast } = useToast();
+
+  const setTokenRateLimit = async (teamspaceId: number) => {
+    const response = await fetch(
+      `/api/admin/token-rate-limits/teamspace/${teamspaceId}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          enabled: true,
+          token_budget: tokenBudget,
+          period_hours: periodHours,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorMsg =
+        (await response.json()).detail || "Failed to set token rate limit.";
+      toast({
+        title: "Operation Failed",
+        description: `Could not set token rate limit: ${errorMsg}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Token Rate Limit Set",
+      description: "The token rate limit has been successfully set.",
+      variant: "success",
+    });
+  };
 
   return (
     <div>
@@ -60,12 +99,14 @@ export const TeamspaceCreationForm = ({
         onSubmit={async (values, formikHelpers) => {
           formikHelpers.setSubmitting(true);
 
-          console.log("Submitted values:", values);
-
           let response;
           response = await createTeamspace(values);
           formikHelpers.setSubmitting(false);
           if (response.ok) {
+            const { id } = await response.json();
+
+            await setTokenRateLimit(id);
+
             toast({
               title: isUpdate ? "Teamspace Updated!" : "Teamspace Created!",
               description: isUpdate
@@ -180,8 +221,18 @@ export const TeamspaceCreationForm = ({
                   Set Token Rate Limit
                 </p>
                 <div className="flex items-center gap-4 w-full">
-                  <Input placeholder="Time Window (Hours)" type="number" />
-                  <Input placeholder="Token Budget (Thousands)" type="number" />
+                  <Input
+                    placeholder="Time Window (Hours)"
+                    type="number"
+                    value={periodHours}
+                    onChange={(e) => setPeriodHours(Number(e.target.value))}
+                  />
+                  <Input
+                    placeholder="Token Budget (Thousands)"
+                    type="number"
+                    value={tokenBudget}
+                    onChange={(e) => setTokenBudget(Number(e.target.value))}
+                  />
                 </div>
               </div>
 

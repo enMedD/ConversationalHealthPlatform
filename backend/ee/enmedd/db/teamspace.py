@@ -146,11 +146,9 @@ def _add_user__teamspace_relationships__no_commit(
     db_session: Session,
     teamspace_id: int,
     user_ids: list[UUID],
-    creator_id: Optional[UUID],
+    creator_id: Optional[UUID] = None,
 ) -> list[User__Teamspace]:
     """NOTE: does not commit the transaction."""
-    if creator_id is None:
-        return []
 
     # if creator_id not in user_ids:
     #     user_ids.append(creator_id)
@@ -202,8 +200,8 @@ def _add_teamspace__assistant_relationships__no_commit(
 ) -> list[Assistant__Teamspace]:
     """NOTE: does not commit the transaction."""
     relationships = [
-        Assistant__Teamspace(teamspace_id=teamspace_id, assistant_id=assistant_id)
-        for assistant_id in assistant_ids
+        Assistant__Teamspace(teamspace_id=teamspace_id, assistant_id=id)
+        for id in assistant_ids
     ]
     db_session.add_all(relationships)
     return relationships
@@ -354,7 +352,7 @@ def update_teamspace(
         _add_teamspace__document_set_relationships__no_commit(
             db_session=db_session,
             teamspace_id=db_teamspace.id,
-            document_set_id=teamspace.document_set_ids,
+            document_set_ids=teamspace.document_set_ids,
         )
     if assistant_updated:
         _mark_teamspace__assistant_relationships_outdated__no_commit(
@@ -363,7 +361,7 @@ def update_teamspace(
         _add_teamspace__assistant_relationships__no_commit(
             db_session=db_session,
             teamspace_id=db_teamspace.id,
-            assistant_id=teamspace.assistant_ids,
+            assistant_ids=teamspace.assistant_ids,
         )
 
     # only needs to sync with Vespa if the cc_pairs have been updated

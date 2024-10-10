@@ -47,6 +47,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Label } from "@/components/ui/label";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { Divider } from "@/components/Divider";
+import { Combobox } from "@/components/Combobox";
 
 function findSearchTool(tools: ToolSnapshot[]) {
   return tools.find((tool) => tool.in_code_tool_id === "SearchTool");
@@ -871,45 +872,26 @@ export function AssistantEditor({
                             teamspaces.length > 0 &&
                             !values.is_public && (
                               <div>
-                                <p className="text-subtle text-sm">
+                                <h3 className="mb-1 text-sm">
                                   Select which Teamspaces should have access to
                                   this Assistant.
-                                </p>
-                                <div className="flex flex-wrap gap-2 mt-2">
-                                  {teamspaces.map((teamspace) => {
-                                    const isSelected = values.groups.includes(
-                                      teamspace.id
-                                    );
-                                    return (
-                                      <Bubble
-                                        key={teamspace.id}
-                                        isSelected={isSelected}
-                                        onClick={() => {
-                                          if (isSelected) {
-                                            setFieldValue(
-                                              "groups",
-                                              values.groups.filter(
-                                                (id) => id !== teamspace.id
-                                              )
-                                            );
-                                          } else {
-                                            setFieldValue("groups", [
-                                              ...values.groups,
-                                              teamspace.id,
-                                            ]);
-                                          }
-                                        }}
-                                      >
-                                        <div className="flex">
-                                          <GroupsIcon />
-                                          <div className="ml-1">
-                                            {teamspace.name}
-                                          </div>
-                                        </div>
-                                      </Bubble>
-                                    );
-                                  })}
-                                </div>
+                                </h3>
+
+                                <Combobox
+                                  items={teamspaces.map((teamspace) => ({
+                                    value: teamspace.id.toString(),
+                                    label: teamspace.name,
+                                  }))}
+                                  onSelect={(selectedTeamspaceIds) => {
+                                    const selectedIds =
+                                      selectedTeamspaceIds.map((val) =>
+                                        parseInt(val, 10)
+                                      );
+                                    setFieldValue("groups", selectedIds);
+                                  }}
+                                  placeholder="Select teamspaces"
+                                  label="Teamspaces"
+                                />
                               </div>
                             )}
                         </>

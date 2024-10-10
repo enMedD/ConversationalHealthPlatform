@@ -38,6 +38,7 @@ export function UserProfile({
     user && user.full_name
       ? generateGradient(getNameInitials(user.full_name))
       : "linear-gradient(to right, #e2e2e2, #ffffff)";
+
   return (
     <div
       className={`flex items-center justify-center rounded-full aspect-square ${textSize} font-medium text-inverted py-2`}

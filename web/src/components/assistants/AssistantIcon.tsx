@@ -23,8 +23,6 @@ export function AssistantIcon({
   size?: "small" | "medium" | "large";
   border?: boolean;
 }) {
-  const color = generatePastelColorFromId(assistant.id.toString());
-
   return (
     <Image
       src={logo}

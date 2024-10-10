@@ -84,6 +84,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { CustomTooltip } from "@/components/CustomTooltip";
 import { HelperFab } from "@/components/HelperFab";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 const TEMP_USER_MESSAGE_ID = -1;
 const TEMP_ASSISTANT_MESSAGE_ID = -2;
@@ -1071,6 +1072,14 @@ export function ChatPage({
 
     setShowDocSidebar((prevState) => !prevState);
   };
+
+  useKeyboardShortcuts([
+    {
+      key: "m",
+      handler: toggleSidebar,
+      ctrlKey: true,
+    },
+  ]);
 
   useEffect(() => {
     const includes = checkAnyAssistantHasSearch(

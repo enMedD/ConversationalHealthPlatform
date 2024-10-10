@@ -2,27 +2,39 @@
 
 import React, { useEffect } from "react";
 import { usePathname } from "next/navigation";
+import { useKeyboardShortcuts } from "@/hooks/useKeyboardShortcuts";
 
 const PageSwitcher: React.FC = () => {
-  const pathname = usePathname();
-
-  useEffect(() => {
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key === "s") {
-        event.preventDefault();
+  useKeyboardShortcuts([
+    {
+      key: "s",
+      handler: () => {
         window.location.href = "/search";
-      } else if (event.ctrlKey && event.key === "d") {
-        event.preventDefault();
+      },
+      ctrlKey: true,
+    },
+    {
+      key: "d",
+      handler: () => {
         window.location.href = "/chat";
-      }
-    };
-
-    window.addEventListener("keydown", handleKeyDown);
-
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-    };
-  }, [pathname]);
+      },
+      ctrlKey: true,
+    },
+    {
+      key: "p",
+      handler: () => {
+        window.location.href = "/profile";
+      },
+      ctrlKey: true,
+    },
+    {
+      key: "q",
+      handler: () => {
+        window.location.href = "/admin/indexing/status";
+      },
+      ctrlKey: true,
+    },
+  ]);
 
   return <div />;
 };

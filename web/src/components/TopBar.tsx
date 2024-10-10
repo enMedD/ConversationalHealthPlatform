@@ -29,7 +29,7 @@ export function TopBar({
 
 export function WelcomeTopBar() {
   return (
-    <div className="fixed w-full py-6 top-0 left-0 bg-background">
+    <div className="w-full py-6 bg-background">
       <Image src={Logo} alt="Logo" className="w-28 xl:w-32 ml-6 xl:ml-10" />
     </div>
   );

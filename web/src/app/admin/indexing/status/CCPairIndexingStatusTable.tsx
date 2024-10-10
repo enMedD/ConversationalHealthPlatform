@@ -132,7 +132,7 @@ export function CCPairIndexingStatusTable({
 
   return (
     <div>
-      <div className="relative md:w-[500px] mb-6">
+      <div className="relative md:w-[500px] mb-6 ml-auto">
         <SearchInput
           placeholder="Search existing connectors..."
           value={searchTerm}

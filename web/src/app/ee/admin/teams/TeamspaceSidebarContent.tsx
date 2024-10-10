@@ -1,4 +1,4 @@
-import { Teamspace } from "@/lib/types";
+import { ConnectorIndexingStatus, DocumentSet, Teamspace } from "@/lib/types";
 import { TeamspaceMember } from "./TeamspaceMember";
 import { TeamspaceAssistant } from "./TeamspaceAssistant";
 import { TeamspaceDocumentSet } from "./TeamspaceDocumentSet";
@@ -6,17 +6,26 @@ import { TeamspaceDataSource } from "./TeamspaceDataSource";
 import { Shield } from "lucide-react";
 import useSWR from "swr";
 import { errorHandlingFetcher } from "@/lib/fetcher";
+import { Assistant } from "@/app/admin/assistants/interfaces";
 
 interface TeamspaceSidebarContentProps {
   teamspace: Teamspace & { gradient: string };
   selectedTeamspaceId?: number;
+  assistants: Assistant[];
+  ccPairs: ConnectorIndexingStatus<any, any>[] | undefined;
+  documentSets: DocumentSet[];
+  refreshTeamspaces: () => void;
 }
 
 export const TeamspaceSidebarContent = ({
   teamspace,
   selectedTeamspaceId,
+  assistants,
+  ccPairs,
+  documentSets,
+  refreshTeamspaces,
 }: TeamspaceSidebarContentProps) => {
-  const { data, isLoading, error } = useSWR(
+  const { data, error } = useSWR(
     `/api/admin/token-rate-limits/teamspace/${teamspace.id}`,
     errorHandlingFetcher
   );
@@ -51,7 +60,7 @@ export const TeamspaceSidebarContent = ({
               ? `${tokenRate.token_budget} Token Rate`
               : "No Token Rate"}
           </span>
-          <p className="text-center text-subtle pt-4 text-sm">
+          <p className="text-center text-subtle pt-4 text-sm line-clamp">
             Lorem ipsum dolor, sit amet consectetur adipisicing elit.
             Perferendis omnis nesciunt est saepe sequi nam cum ratione
             aspernatur reprehenderit, ducimus illo eveniet et quidem itaque
@@ -64,9 +73,21 @@ export const TeamspaceSidebarContent = ({
             teamspace={teamspace}
             selectedTeamspaceId={selectedTeamspaceId}
           />
-          <TeamspaceAssistant teamspace={teamspace} />
-          <TeamspaceDocumentSet teamspace={teamspace} />
-          <TeamspaceDataSource teamspace={teamspace} />
+          <TeamspaceAssistant
+            teamspace={teamspace}
+            assistants={assistants}
+            refreshTeamspaces={refreshTeamspaces}
+          />
+          <TeamspaceDocumentSet
+            teamspace={teamspace}
+            documentSets={documentSets}
+            refreshTeamspaces={refreshTeamspaces}
+          />
+          <TeamspaceDataSource
+            teamspace={teamspace}
+            ccPairs={ccPairs}
+            refreshTeamspaces={refreshTeamspaces}
+          />
         </div>
       </div>
     </>

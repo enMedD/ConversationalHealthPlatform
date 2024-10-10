@@ -61,9 +61,9 @@ const EditRow = ({ documentSet }: { documentSet: DocumentSet }) => {
         }
         asChild
       >
-        <div className="flex gap-1">
-          <InfoIcon /> Cannot update while syncing! Wait for the sync to finish,
-          then try again.
+        <div className="flex gap-1.5">
+          <InfoIcon className="mb-auto shrink-0 mt-[3px]" /> Cannot update while
+          syncing! Wait for the sync to finish, then try again.
         </div>
       </CustomTooltip>
     </div>

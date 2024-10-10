@@ -120,7 +120,7 @@ export default function Page() {
           find exactly what you&apos;re looking for in one place.
         </p>
 
-        <div className="relative md:w-[500px] mt-6">
+        <div className="relative md:w-[500px] mt-6 ml-auto">
           <SearchInput
             ref={searchInputRef}
             placeholder="Search existing connectors..."

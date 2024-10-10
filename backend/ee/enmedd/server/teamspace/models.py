@@ -124,11 +124,10 @@ class Teamspace(BaseModel):
 class TeamspaceCreate(BaseModel):
     name: str
     user_ids: list[UUID]
-    cc_pair_ids: list[int]
-    document_set_ids: Optional[List[int]] = []
-    assistant_ids: Optional[List[int]] = []
+    cc_pair_ids: Optional[List[int]] = None
+    document_set_ids: Optional[List[int]] = None
+    assistant_ids: Optional[List[int]] = None
     workspace_id: Optional[int] = 0
-
 
 class TeamspaceUpdate(BaseModel):
     user_ids: list[UUID]
