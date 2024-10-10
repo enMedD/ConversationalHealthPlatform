@@ -8,7 +8,7 @@ class PageType(str, Enum):
     SEARCH = "search"
 
 
-class Settings(BaseModel):
+class Setting(BaseModel):
     """General settings"""
 
     chat_page_enabled: bool = True

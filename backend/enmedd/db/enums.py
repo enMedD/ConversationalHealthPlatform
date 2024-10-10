@@ -49,3 +49,8 @@ class WorkspaceSubscriptionPlan(str, PyEnum):
 class InstanceSubscriptionPlan(str, PyEnum):
     ENTERPRISE = "enterprise"
     PARTNER = "partner"
+
+
+class PageType(str, PyEnum):
+    CHAT = "chat"
+    SEARCH = "search"

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from fastapi import APIRouter
 from fastapi import Depends
 from fastapi import HTTPException
@@ -7,6 +9,7 @@ from enmedd.auth.users import current_admin_user
 from enmedd.auth.users import current_user
 from enmedd.db.document_set import check_document_sets_are_public
 from enmedd.db.document_set import fetch_all_document_sets
+from enmedd.db.document_set import fetch_document_sets_by_teamspace
 from enmedd.db.document_set import fetch_user_document_sets
 from enmedd.db.document_set import insert_document_set
 from enmedd.db.document_set import mark_document_set_as_to_be_deleted
@@ -76,13 +79,20 @@ def delete_document_set(
 
 @router.get("/admin/document-set")
 def list_document_sets_admin(
+    teamspace_id: Optional[int] = None,
     _: User | None = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> list[DocumentSet]:
-    return [
-        DocumentSet.from_model(ds)
-        for ds in fetch_all_document_sets(db_session=db_session)
-    ]
+    if teamspace_id:
+        return [
+            DocumentSet.from_model(ds)
+            for ds in fetch_document_sets_by_teamspace(teamspace_id, db_session)
+        ]
+    else:
+        return [
+            DocumentSet.from_model(ds)
+            for ds in fetch_all_document_sets(db_session=db_session)
+        ]
 
 
 """Endpoints for non-admins"""

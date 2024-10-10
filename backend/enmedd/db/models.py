@@ -43,6 +43,7 @@ from enmedd.db.enums import ChatSessionSharedStatus
 from enmedd.db.enums import IndexingStatus
 from enmedd.db.enums import IndexModelStatus
 from enmedd.db.enums import InstanceSubscriptionPlan
+from enmedd.db.enums import PageType
 from enmedd.db.enums import TaskStatus
 from enmedd.db.pydantic_type import PydanticType
 from enmedd.dynamic_configs.interface import JSON_ro
@@ -1369,11 +1370,14 @@ class Teamspace(Base):
         secondary="token_rate_limit__teamspace",
         viewonly=True,
     )
-    
+
     chat_folders: Mapped[list[ChatFolder]] = relationship(
         "ChatFolder",
         secondary=ChatFolder__Teamspace.__table__,
         viewonly=True,
+    )
+    settings: Mapped["TeamspaceSettings"] = relationship(
+        "TeamspaceSettings", back_populates="teamspace", viewonly=False
     )
 
 
@@ -1556,7 +1560,9 @@ class Workspace(Base):
         back_populates="workspace",
         viewonly=True,
     )
-
+    settings: Mapped["WorkspaceSettings"] = relationship(
+        "WorkspaceSettings", back_populates="workspace", viewonly=False
+    )
     instance: Mapped["Instance"] = relationship("Instance", back_populates="workspaces")
 
 
@@ -1573,4 +1579,46 @@ class Instance(Base):
 
     workspaces: Mapped[list[Workspace] | None] = relationship(
         "Workspace", back_populates="instance"
+    )
+
+
+class WorkspaceSettings(Base):
+    __tablename__ = "workspace_settings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    chat_page_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    search_page_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    default_page: Mapped[PageType] = mapped_column(
+        Enum(PageType, native_enum=False), default=PageType.CHAT
+    )
+    maximum_chat_retention_days: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
+
+    workspace_id: Mapped[int | None] = mapped_column(
+        ForeignKey("workspace.id"), nullable=True
+    )
+    workspace: Mapped["Workspace"] = relationship(
+        "Workspace", back_populates="settings"
+    )
+
+
+class TeamspaceSettings(Base):
+    __tablename__ = "teamspace_settings"
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    chat_page_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    search_page_enabled: Mapped[bool] = mapped_column(Boolean, default=True)
+    default_page: Mapped[PageType] = mapped_column(
+        Enum(PageType, native_enum=False), default=PageType.CHAT
+    )
+    maximum_chat_retention_days: Mapped[int | None] = mapped_column(
+        Integer, nullable=True
+    )
+
+    teamspace_id: Mapped[int | None] = mapped_column(
+        ForeignKey("teamspace.id"), nullable=True
+    )
+    teamspace: Mapped["Teamspace"] = relationship(
+        "Teamspace", back_populates="settings"
     )

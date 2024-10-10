@@ -1,6 +1,7 @@
 import os
 import uuid
 from typing import cast
+from typing import Optional
 
 from fastapi import APIRouter
 from fastapi import Depends
@@ -65,6 +66,8 @@ from enmedd.db.index_attempt import cancel_indexing_attempts_past_model
 from enmedd.db.index_attempt import create_index_attempt
 from enmedd.db.index_attempt import get_index_attempts_for_cc_pair
 from enmedd.db.index_attempt import get_latest_index_attempts
+from enmedd.db.models import ConnectorCredentialPair
+from enmedd.db.models import Teamspace__ConnectorCredentialPair
 from enmedd.db.models import User
 from enmedd.dynamic_configs.interface import ConfigNotFoundError
 from enmedd.file_store.file_store import get_default_file_store
@@ -366,14 +369,26 @@ def upload_files(
 
 @router.get("/admin/connector/indexing-status")
 def get_connector_indexing_status(
+    teamspace_id: Optional[int] = None,
     secondary_index: bool = False,
     _: User = Depends(current_admin_user),
     db_session: Session = Depends(get_session),
 ) -> list[ConnectorIndexingStatus]:
     indexing_statuses: list[ConnectorIndexingStatus] = []
 
-    # TODO: make this one query
-    cc_pairs = get_connector_credential_pairs(db_session)
+    if teamspace_id:
+        cc_pairs = (
+            db_session.query(ConnectorCredentialPair)
+            .join(Teamspace__ConnectorCredentialPair)
+            .filter(
+                Teamspace__ConnectorCredentialPair.teamspace_id == teamspace_id,
+                Teamspace__ConnectorCredentialPair.is_current == True,  # noqa: E712
+            )
+            .all()
+        )
+    else:
+        cc_pairs = get_connector_credential_pairs(db_session)
+
     cc_pair_identifiers = [
         ConnectorCredentialPairIdentifier(
             connector_id=cc_pair.connector_id, credential_id=cc_pair.credential_id
