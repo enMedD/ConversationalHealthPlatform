@@ -14,6 +14,7 @@ from enmedd.db.models import Document
 from enmedd.db.models import DocumentByConnectorCredentialPair
 from enmedd.db.models import DocumentSet as DocumentSetDBModel
 from enmedd.db.models import DocumentSet__ConnectorCredentialPair
+from enmedd.db.models import DocumentSet__Teamspace
 from enmedd.server.features.document_set.models import DocumentSetCreationRequest
 from enmedd.server.features.document_set.models import DocumentSetUpdateRequest
 from enmedd.utils.variable_functionality import fetch_versioned_implementation
@@ -360,6 +361,21 @@ def fetch_document_sets(
 def fetch_all_document_sets(db_session: Session) -> Sequence[DocumentSetDBModel]:
     """Used for Admin UI where they should have visibility into all document sets"""
     return db_session.scalars(select(DocumentSetDBModel)).all()
+
+
+def fetch_document_sets_by_teamspace(
+    teamspace_id: int, db_session: Session
+) -> Sequence[DocumentSetDBModel]:
+    """Fetch document sets for a specific teamspace."""
+    return (
+        db_session.query(DocumentSetDBModel)
+        .join(
+            DocumentSet__Teamspace,
+            DocumentSetDBModel.id == DocumentSet__Teamspace.document_set_id,
+        )
+        .filter(DocumentSet__Teamspace.teamspace_id == teamspace_id)
+        .all()
+    )
 
 
 def fetch_user_document_sets(

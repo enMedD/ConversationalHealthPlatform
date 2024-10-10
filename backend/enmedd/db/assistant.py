@@ -169,36 +169,44 @@ def get_prompts(
 
 
 def get_assistants(
-    # if user_id is `None` assume the user is an admin or auth is disabled
     user_id: UUID | None,
     db_session: Session,
+    teamspace_id: int | None = None,
     include_default: bool = True,
     include_deleted: bool = False,
 ) -> Sequence[Assistant]:
     stmt = select(Assistant).distinct()
+
     if user_id is not None:
-        # Subquery to find all teams the user belongs to
         teamspaces_subquery = (
             select(User__Teamspace.teamspace_id)
             .where(User__Teamspace.user_id == user_id)
             .subquery()
         )
 
-        # Include assistants where the user is directly related or part of a teamspace that has access
         access_conditions = or_(
             Assistant.is_public == True,  # noqa: E712
-            Assistant.id.in_(  # User has access through list of users with access
+            Assistant.id.in_(
                 select(Assistant__User.assistant_id).where(
                     Assistant__User.user_id == user_id
                 )
             ),
-            Assistant.id.in_(  # User is part of a group that has access
+            Assistant.id.in_(
                 select(Assistant__Teamspace.assistant_id).where(
-                    Assistant__Teamspace.teamspace_id.in_(teamspaces_subquery)  # type: ignore
+                    Assistant__Teamspace.teamspace_id.in_(teamspaces_subquery)
                 )
             ),
         )
         stmt = stmt.where(access_conditions)
+
+    if teamspace_id is not None:
+        stmt = stmt.where(
+            Assistant.id.in_(
+                select(Assistant__Teamspace.assistant_id).where(
+                    Assistant__Teamspace.teamspace_id == teamspace_id
+                )
+            )
+        )
 
     if not include_default:
         stmt = stmt.where(Assistant.default_assistant.is_(False))
@@ -587,39 +595,6 @@ def get_assistants_by_ids(
     assistants = db_session.scalars(
         select(Assistant).where(Assistant.id.in_(assistant_ids))
     ).all()
-
-    return assistants
-
-
-def get_assistants_by_teamspace_id(
-    teamspace_id: int,
-    user: User | None,
-    db_session: Session,
-    include_deleted: bool = False,
-) -> list[Assistant]:
-    stmt = (
-        select(Assistant)
-        .join(Assistant__Teamspace)
-        .where(Assistant__Teamspace.teamspace_id == teamspace_id)
-    )
-
-    or_conditions = []
-
-    if user is not None and user.role != UserRole.ADMIN:
-        or_conditions.extend(
-            [Assistant.user_id == user.id, Assistant.user_id.is_(None)]
-        )
-
-        or_conditions.append(Assistant.is_public.is_(True))
-
-    if or_conditions:
-        stmt = stmt.where(or_(*or_conditions))
-
-    if not include_deleted:
-        stmt = stmt.where(Assistant.deleted.is_(False))
-
-    result = db_session.execute(stmt)
-    assistants = result.scalars().all()
 
     return assistants
 
